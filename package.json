@@ -1,0 +1,14 @@
+{
+  "name": "zephyros",
+  "version": "0.0.1",
+  "dependencies": {
+    "when" : "*",
+    "node-uuid" : "*",
+    "lodash" : "*"
+  },
+  "devDependencies": {
+  },
+  "engines": {
+    "node": ">0.10.0"
+  }
+}
