@@ -1,22 +1,17 @@
 var when = require('when'),
-    fn = require('when/function'),
     net = require('net'),
     uuid = require('node-uuid'),
-    _ = require('lodash'),
-    pipeline = require('when/pipeline'),
-    nodefn = require("when/node/function");
+    _ = require('lodash');
 
-exports = module.exports = Server;
+exports = module.exports = Client;
 
-function Server(options){
+function Client(options){
   this.queue = [];
   this.client = net.connect(options);
   this.client.on('data', this.onData.bind(this));
 }
 
-Server.prototype.onData = function(data){
-  console.log("data: ", data.toString())
-  console.log("--");
+Client.prototype.onData = function(data){
   try {
     var message = JSON.parse(data.toString('ascii').split('\n')[1]);
     var id = message.shift();
@@ -31,7 +26,7 @@ Server.prototype.onData = function(data){
   }
 }
 
-Server.prototype.once = function(){
+Client.prototype.once = function(){
   var args = [].slice.call(arguments);
   var deferred = when.defer();
   var id = uuid.v1();
@@ -47,7 +42,7 @@ Server.prototype.once = function(){
   return deferred.promise;
 };
 
-Server.prototype.listen = function(){
+Client.prototype.listen = function(){
   var args = [].slice.call(arguments);
   var deferred = when.defer();
   var id = uuid.v1();
@@ -63,6 +58,7 @@ Server.prototype.listen = function(){
   return {
     then : function(callback){
       _callback = callback;
+      // manually fix the next promises
     }
   }
 };

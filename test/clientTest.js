@@ -1,11 +1,11 @@
 var assert = require('assert'),
     when = require('when'),
     net = require('net'),
-    Server = require('./../src/server');
+    Client = require('./../src/client');
 
 require('when/monitor/console');
 
-describe('Server', function(){
+describe('Client', function(){
 
   var relay;
 
@@ -25,11 +25,11 @@ describe('Server', function(){
   });
 
   it('should send a json message correctly formatted', function(done){
-    var server = new Server({
+    var client = new Client({
       port: 8124,
       host: 'localhost'
     });
-    server.once(1, 'Daniele').then(function(response){
+    client.once(1, 'Daniele').then(function(response){
       assert.equal(response[0], 1);
       assert.equal(response[1], 'Daniele');
       done();
@@ -37,12 +37,12 @@ describe('Server', function(){
   });
 
   it('should send a (JSON) message and wait for other (JSON) messages to come', function(done){
-    var server = new Server({
+    var client = new Client({
       port: 8124,
       host: 'localhost'
     });
     var i = 0;
-    server.listen(2, 'Me').then(function(response){
+    client.listen(2, 'Me').then(function(response){
       i += 1;
       if( i > 1 ){
         assert.equal(i, 2);

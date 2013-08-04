@@ -4,14 +4,15 @@ var when = require('when'),
 
 exports = module.exports = Api;
 
-function Api(){
+function Api(client){
   this.stack = [];
+  this.client = client;
 }
 
 Api.prototype.thenClipboardContents = function(){
   var func = function(){
     var deferred = when.defer();
-    this.server.once(0, 'clipboard_contents').then(function(clipboard){
+    this.client.once(0, 'clipboard_contents').then(function(clipboard){
       deferred.resolve(clipboard);
     });
     return deferred.promise;
