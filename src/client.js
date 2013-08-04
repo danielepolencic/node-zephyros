@@ -15,10 +15,12 @@ Client.prototype.onData = function(data){
   try {
     var message = JSON.parse(data.toString('ascii').split('\n')[1]);
     var id = message.shift();
+    var response = ~~message.shift();
+
+    if( response < 0 ) return;
 
     if( id in this.queue ){
       var callback = this.queue[id];
-      console.log('call: ', id)
       if (callback) callback.call(null, message);
     }
   } catch (e) {

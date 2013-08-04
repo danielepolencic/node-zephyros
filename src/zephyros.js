@@ -9,6 +9,6 @@ exports = module.exports = Zephyros;
 
 Zephyros.prototype.bind = function( key, modifier ){
   var api = new Api(this.client);
-  this.client.listen(key, modifier).then(api.force.bind(api));
+  this.client.listen(0, 'bind', key, modifier).then(api.force.bind(api));
   return api;
 }

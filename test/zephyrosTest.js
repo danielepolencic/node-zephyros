@@ -32,7 +32,7 @@ describe('Zephyros', function(){
     z.bind('t', ['Cmd', 'Shift']).thenClipboardContents().then(function(clip){
       i += 1
       if( i > 1 ){
-        assert.equal(clip[1], 'Apollo');
+        assert.equal(clip[0], 'Apollo');
         done();
       }
     });

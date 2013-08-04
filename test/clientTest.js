@@ -29,9 +29,8 @@ describe('Client', function(){
       port: 8124,
       host: 'localhost'
     });
-    client.once(1, 'Daniele').then(function(response){
-      assert.equal(response[0], 1);
-      assert.equal(response[1], 'Daniele');
+    client.once(0, 'Daniele').then(function(response){
+      assert.equal(response[0], 'Daniele');
       done();
     });
   });
