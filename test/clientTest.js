@@ -1,36 +1,31 @@
 var assert = require('assert'),
     when = require('when'),
     net = require('net'),
+    MockServer = require('./mockServer'),
     Client = require('./../src/client');
 
 require('when/monitor/console');
 
 describe('Client', function(){
 
-  var relay;
+  var mockServer;
 
-  before(function(done){
-    relay = net.createServer(function(connection) {
-      connection.on('end', function() {
-        console.log('server disconnected');
-      });
-      connection.on('data', function(data){
-        console.log(data.toString());
-        connection.write(data)
-        setTimeout(function(){ connection.write(data) }, 500);
-      });
-    });
-
-    relay.listen(8124, done);
+  beforeEach(function(){
+    mockServer = new MockServer(8124);
   });
+
+  afterEach(function(){
+    mockServer.destroy();
+  })
 
   it('should send a json message correctly formatted', function(done){
     var client = new Client({
       port: 8124,
       host: 'localhost'
     });
-    client.once(0, 'Daniele').then(function(response){
-      assert.equal(response[0], 'Daniele');
+    mockServer.replyWith('OK');
+    client.once(0, 'random_command').then(function(response){
+      assert.equal(response, 'OK');
       done();
     });
   });
@@ -41,7 +36,8 @@ describe('Client', function(){
       host: 'localhost'
     });
     var i = 0;
-    client.listen(2, 'Me').then(function(response){
+    mockServer.replyWith(['-1', 'null', 'null']);
+    client.listen(2, 'another_command').then(function(response){
       i += 1;
       if( i > 1 ){
         assert.equal(i, 2);

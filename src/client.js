@@ -1,7 +1,6 @@
 var when = require('when'),
     net = require('net'),
-    uuid = require('node-uuid'),
-    _ = require('lodash');
+    uuid = require('node-uuid');
 
 exports = module.exports = Client;
 
@@ -13,15 +12,17 @@ function Client(options){
 
 Client.prototype.onData = function(data){
   try {
-    var message = JSON.parse(data.toString('ascii').split('\n')[1]);
+    var raw = data.toString();
+    var message = JSON.parse(raw.substring(raw.indexOf('[')))
+    if(!Array.isArray(message)) return;
     var id = message.shift();
-    var response = ~~message.shift();
+    var response = message.shift();
 
-    if( response < 0 ) return;
+    if( ~~response < 0 ) return;
 
     if( id in this.queue ){
       var callback = this.queue[id];
-      if (callback) callback.call(null, message);
+      if (callback) callback.call(null, response);
     }
   } catch (e) {
     console.log("error: ", e)
@@ -31,7 +32,7 @@ Client.prototype.onData = function(data){
 Client.prototype.once = function(){
   var args = [].slice.call(arguments);
   var deferred = when.defer();
-  var id = uuid.v1();
+  var id = uuid.v4();
 
   this.queue[id] = function(response){
     delete this.queue.id;
@@ -39,7 +40,7 @@ Client.prototype.once = function(){
   }.bind(this);
   args.unshift(id);
   var message = JSON.stringify(args);
-  this.client.write(message.length + '\n' + message, 'ascii');
+  this.client.write(message.length + '\n' + message);
 
   return deferred.promise;
 };
@@ -47,7 +48,7 @@ Client.prototype.once = function(){
 Client.prototype.listen = function(){
   var args = [].slice.call(arguments);
   var deferred = when.defer();
-  var id = uuid.v1();
+  var id = uuid.v4();
   _callback = function(){}
 
   this.queue[id] = function(response){
@@ -55,7 +56,7 @@ Client.prototype.listen = function(){
   }.bind(this);
   args.unshift(id);
   var message = JSON.stringify(args);
-  this.client.write(message.length + '\n' + message, 'ascii');
+  this.client.write(message.length + '\n' + message);
 
   return {
     then : function(callback){

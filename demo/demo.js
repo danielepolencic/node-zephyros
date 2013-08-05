@@ -6,5 +6,5 @@ var z = new Zephyros({
 });
 
 z.bind('t', ['Cmd', 'Shift']).thenClipboardContents().then(function(clip){
-  console.log(clip[1]);
+  console.log("clip: ", clip);
 });
