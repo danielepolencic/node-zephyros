@@ -29,4 +29,19 @@ describe('Zephyros', function(){
     });
   });
 
+  it.only('should bind to a key shorcut and execute calls outside of bind', function(done){
+    var z = new Zephyros({
+      port: 8125,
+      host: 'localhost'
+    });
+    mockServer.replyWith([ '-1', 'null' ]);
+    mockServer.replyWith('Clip');
+    z.bind('r', ['Cmd', 'Shift']).then(function(){
+      z.api().thenClipboardContents().then(function(clip){
+        assert(clip, 'Clip');
+        done();
+      });
+    });
+  });
+
 });

@@ -11,4 +11,10 @@ Zephyros.prototype.bind = function( key, modifier ){
   var api = new Api(this.client);
   this.client.listen(0, 'bind', key, modifier).then(api.force.bind(api));
   return api;
-}
+};
+
+Zephyros.prototype.api = function(){
+  var api = new Api(this.client);
+  process.nextTick(api.force.bind(api));
+  return api;
+};
