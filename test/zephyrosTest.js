@@ -29,7 +29,7 @@ describe('Zephyros', function(){
     });
   });
 
-  it.only('should bind to a key shorcut and execute calls outside of bind', function(done){
+  it('should bind to a key shorcut and execute calls outside of bind', function(done){
     var z = new Zephyros({
       port: 8125,
       host: 'localhost'

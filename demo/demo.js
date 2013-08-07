@@ -8,3 +8,7 @@ var z = new Zephyros({
 z.bind('t', ['Cmd', 'Shift']).thenClipboardContents().then(function(clip){
   console.log("clip: ", clip);
 });
+
+z.bind('r', ['Cmd', 'Shift']).thenFocusedWindow().then(function(window){
+  console.log("window: ", window);
+});

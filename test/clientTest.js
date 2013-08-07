@@ -26,6 +26,7 @@ describe('Client', function(){
     mockServer.replyWith('OK');
     client.once(0, 'random_command').then(function(response){
       assert.equal(response, 'OK');
+      assert.equal(Object.keys(client.queue).length, 0);
       done();
     });
   });

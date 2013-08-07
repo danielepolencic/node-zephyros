@@ -1,11 +1,10 @@
-var when = require('when'),
-    net = require('net'),
+var net = require('net'),
     uuid = require('node-uuid');
 
 exports = module.exports = Client;
 
 function Client(options){
-  this.queue = [];
+  this.queue = {};
   this.client = net.connect(options);
   this.client.on('data', this.onData.bind(this));
 }
@@ -31,37 +30,36 @@ Client.prototype.onData = function(data){
 
 Client.prototype.once = function(){
   var args = [].slice.call(arguments);
-  var deferred = when.defer();
-  var id = uuid.v4();
 
-  this.queue[id] = function(response){
-    delete this.queue.id;
-    deferred.resolve(response);
-  }.bind(this);
-  args.unshift(id);
-  var message = JSON.stringify(args);
-  this.client.write(message.length + '\n' + message);
+  var callback = function( queue, id, response ){
+    if( id in queue ) delete queue[id];
+    this._callback.call(null, response);
+  };
 
-  return deferred.promise;
+  return new this.sendCommandAndWait( args, this.queue, this.client, callback );
 };
 
 Client.prototype.listen = function(){
   var args = [].slice.call(arguments);
-  var deferred = when.defer();
-  var id = uuid.v4();
-  _callback = function(){}
 
-  this.queue[id] = function(response){
-    _callback.call(null, response);
-  }.bind(this);
+  var callback = function( queue, id, response ){
+    this._callback.call(null, response);
+  };
+
+  return new this.sendCommandAndWait( args, this.queue, this.client, callback );
+};
+
+Client.prototype.sendCommandAndWait = function( args, queue, client, callback ){
+  var id = uuid.v4();
+  this._callback = function(){}
+
+  queue[id] = callback.bind(this, queue, id);
+
   args.unshift(id);
   var message = JSON.stringify(args);
-  this.client.write(message.length + '\n' + message);
+  client.write(message.length + '\n' + message);
 
-  return {
-    then : function(callback){
-      _callback = callback;
-      // manually fix the next promises
-    }
-  }
+  this.then = function( callback ){
+    this._callback = callback;
+  };
 };
