@@ -17,7 +17,7 @@ z.bind('r', ['Cmd', 'Shift']).thenFocusedWindow().then(function(window){
 
 z.bind('e', ['Cmd', 'Shift'])
 .thenFocusedWindow()
-.thenWindowFrame()
+.thenGetWindowFrame()
 .then(function(frame){
   console.log("frame: ", frame);
 });

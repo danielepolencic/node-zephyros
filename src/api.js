@@ -46,7 +46,7 @@ Api.prototype.thenFocusedWindow = function( func ){
   return this;
 };
 
-Api.prototype.thenWindowFrame = function( func ){
+Api.prototype.thenGetWindowFrame = function( func ){
   var getWindowFrame = function( window_id ){
     var deferred = when.defer();
     if ( isNaN(window_id) ) {
