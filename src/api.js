@@ -46,21 +46,19 @@ Api.prototype.thenFocusedWindow = function( func ){
   return this;
 };
 
-Api.prototype.thenFocusedWindowFrame = function( window_id ){
-  var getFocusedWindowFrame = function( window_id ){
+Api.prototype.thenWindowFrame = function( func ){
+  var getWindowFrame = function( window_id ){
     var deferred = when.defer();
-    this.client.once(window_id, 'frame').then(function(window_object){
-      deferred.resolve(window_object);
-    });
+    if ( isNaN(window_id) ) {
+      deferred.reject('Error: window_id is not a number.');
+    } else {
+      this.client.once(window_id, 'frame').then(function(frame){
+        deferred.resolve(frame);
+      });
+    }
     return deferred.promise;
-  };
-  if ( !isNaN(window_id) ){
-    getFocusedWindowFrame.bind(this, window_id);
-  }
-  this.then( this.thenFocusedWindow );
-  this.then( this.getFocusedWindowFrame.bind(this) );
-  if ( typeof window_id === 'function' ){
-    this.then( window_id );
-  }
+  }.bind(this);
+  this.then( getWindowFrame );
+  func ? this.then( func ) : null;
   return this;
 };
