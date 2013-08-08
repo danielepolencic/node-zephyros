@@ -10,22 +10,25 @@ function Client(options){
 }
 
 Client.prototype.onData = function(data){
-  try {
-    var raw = data.toString();
-    var message = JSON.parse(raw.substring(raw.indexOf('[')))
-    if(!Array.isArray(message)) return;
-    var id = message.shift();
-    var response = message.shift();
+  var raw = data.toString().split(/\s*\d+\n(\[.*\])\s*/gm);
+  raw.forEach(function(item){
+    try {
+      if(!item || 0 === item.length) return;
+      var message = JSON.parse(item);
+      if(!Array.isArray(message)) return;
+      var id = message.shift();
+      var response = message.shift();
 
-    if( ~~response < 0 ) return;
+      if( ~~response < 0 ) return;
 
-    if( id in this.queue ){
-      var callback = this.queue[id];
-      if (callback) callback.call(null, response);
+      if( id in this.queue ){
+        var callback = this.queue[id];
+        if (callback) callback.call(null, response);
+      }
+    } catch (e) {
+      console.log("error: ", e)
     }
-  } catch (e) {
-    console.log("error: ", e)
-  }
+  }.bind(this));
 }
 
 Client.prototype.once = function(){
