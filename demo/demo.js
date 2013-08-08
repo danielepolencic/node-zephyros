@@ -20,4 +20,8 @@ z.bind('e', ['Cmd', 'Shift'])
 .thenGetWindowFrame()
 .then(function(frame){
   console.log("frame: ", frame);
+  return frame;
+})
+.thenSetWindowFrame(function(window){
+  return { id: window.id, frame : { x: 0, y: 22, w: 300, h: 300 } };
 });

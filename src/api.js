@@ -37,7 +37,9 @@ Api.prototype.thenFocusedWindow = function( func ){
   var getFocusedWindow = function(){
     var deferred = when.defer();
     this.client.once(0, 'focused_window').then(function(window_id){
-      deferred.resolve(window_id);
+      deferred.resolve({
+        id: window_id
+      });
     });
     return deferred.promise;
   }.bind(this);
@@ -47,18 +49,38 @@ Api.prototype.thenFocusedWindow = function( func ){
 };
 
 Api.prototype.thenGetWindowFrame = function( func ){
-  var getWindowFrame = function( window_id ){
+  var getWindowFrame = function( window ){
     var deferred = when.defer();
-    if ( isNaN(window_id) ) {
-      deferred.reject('Error: window_id is not a number.');
+    if ( !window['id'] && isNaN(window.id) ) {
+      deferred.reject('Error: window.id is not a number.');
     } else {
-      this.client.once(window_id, 'frame').then(function(frame){
-        deferred.resolve(frame);
+      this.client.once(window.id, 'frame').then(function(frame){
+        deferred.resolve({
+          id: window.id,
+          frame: frame
+        });
       });
     }
     return deferred.promise;
   }.bind(this);
   this.then( getWindowFrame );
   func ? this.then( func ) : null;
+  return this;
+};
+
+Api.prototype.thenSetWindowFrame = function( func ){
+  if( typeof func === 'function' ){
+    this.then( func );
+  } else {
+    return this;
+  }
+  var setWindowFrame = function( window ){
+    var deferred = when.defer();
+    this.client.once(window.id, 'set_frame', window.frame).then(function(){
+      deferred.resolve();
+    });
+    return deferred.promise;
+  }.bind(this);
+  this.then( setWindowFrame );
   return this;
 };
