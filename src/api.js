@@ -29,8 +29,8 @@ Api.prototype.then = function( func ){
   return this;
 };
 
-Api.prototype.force = function( func ){
-  pipeline(this.stack.slice(0)).then( func || function(){} );
+Api.prototype.force = function( onFulfilled, onRejected ){
+  return pipeline(this.stack.slice(0)).then( onFulfilled, onRejected );
 };
 
 Api.prototype.thenGetFocusedWindow = function( func ){
@@ -51,7 +51,7 @@ Api.prototype.thenGetFocusedWindow = function( func ){
 Api.prototype.thenGetWindowFrame = function( func ){
   var getWindowFrame = function( window ){
     var deferred = when.defer();
-    if ( !window['id'] && isNaN(window.id) ) {
+    if ( (typeof window === 'undefined') || !window['id'] || isNaN(window.id) ) {
       deferred.reject('Error: window.id is not a number.');
     } else {
       this.client.once(window.id, 'frame').then(function(frame){
