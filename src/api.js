@@ -9,7 +9,7 @@ function Api(client){
   this.client = client;
 }
 
-Api.prototype.thenClipboardContents = function( func ){
+Api.prototype.thenGetClipboardContents = function( func ){
   var getClipboardContents = function(){
     var deferred = when.defer();
     this.client.once(0, 'clipboard_contents').then(function(clipboard){
@@ -33,7 +33,7 @@ Api.prototype.force = function( func ){
   pipeline(this.stack.slice(0)).then( func || function(){} );
 };
 
-Api.prototype.thenFocusedWindow = function( func ){
+Api.prototype.thenGetFocusedWindow = function( func ){
   var getFocusedWindow = function(){
     var deferred = when.defer();
     this.client.once(0, 'focused_window').then(function(window_id){
