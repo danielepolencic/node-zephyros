@@ -2,6 +2,7 @@ var assert = require('assert'),
     when = require('when'),
     Api = require('./../src/api');
 
+require('when/monitor/console');
 describe.only('Api', function(){
 
   describe('chain', function(){
@@ -59,17 +60,25 @@ describe.only('Api', function(){
 
   describe('endpoints', function(){
 
-    var api;
+    var api,
+        client;
 
-    var dispatcher = function(){
+    var Dispatcher = function(){
       var stack = [];
+      var beforeSendCallback;
 
       this.replyWith = function(/* args */){
         stack.push( [].slice.call(arguments) );
         return this;
       };
 
+      this.interceptMessage = function( func ){
+        beforeSendCallback = func;
+        return this;
+      }
+
       this.once = function(){
+        if (beforeSendCallback) beforeSendCallback.apply(null, arguments);
         return this;
       };
 
@@ -80,8 +89,11 @@ describe.only('Api', function(){
 
     };
 
+    beforeEach(function(){
+      client = new Dispatcher();
+    });
+
     it('should get the clipboard content', function(done){
-      var client = new dispatcher();
       api = new Api( client.replyWith('This is my clipboard') );
       api.thenGetClipboardContents().force(function(clipboard){
         assert.equal('This is my clipboard', clipboard);
@@ -89,7 +101,6 @@ describe.only('Api', function(){
     });
 
     it('should get the focused window', function(done){
-      var client = new dispatcher();
       api = new Api( client.replyWith(99) );
       api.thenGetFocusedWindow().force(function(window){
         assert.equal(window.id, 99);
@@ -97,7 +108,6 @@ describe.only('Api', function(){
     });
 
     it('should get the window frame', function(done){
-      var client = new dispatcher();
       api = new Api( client.replyWith({x: 1, y: 2, w: 3, h: 4}) );
       api
       .then(function(){ return { id: 67 }; })
@@ -106,6 +116,22 @@ describe.only('Api', function(){
         assert.equal(window.frame.x, 1);
       })
       .then(done, done);
+    });
+
+    it('should set the window frame', function(done){
+      client.replyWith('OK').interceptMessage(function(id, command, frame){
+        assert.equal(id, 78);
+        assert.equal(frame.h, 4);
+      });
+      api = new Api( client );
+      api
+      .thenSetWindowFrame(function(){
+        return {
+          id: 78,
+          frame: {x: 1, y: 2, w: 3, h: 4}
+        };
+      })
+      .force(done, done);
     });
 
   });
