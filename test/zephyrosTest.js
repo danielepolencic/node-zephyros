@@ -23,7 +23,7 @@ describe('Zephyros', function(){
     });
     mockServer.replyWith([ '-1', 'null' ]);
     mockServer.replyWith('My clipboard');
-    z.bind('t', ['Cmd', 'Shift']).thenClipboardContents().then(function(clip){
+    z.bind('t', ['Cmd', 'Shift']).thenGetClipboardContents().then(function(clip){
       assert.equal(clip, 'My clipboard');
       done();
     });
@@ -37,11 +37,22 @@ describe('Zephyros', function(){
     mockServer.replyWith([ '-1', 'null' ]);
     mockServer.replyWith('Clip');
     z.bind('r', ['Cmd', 'Shift']).then(function(){
-      z.api().thenClipboardContents().then(function(clip){
+      z.api().thenGetClipboardContents().then(function(clip){
         assert(clip, 'Clip');
         done();
       });
     });
+  });
+
+  it('should listen for two events', function(done){
+    var z = new Zephyros({
+      port: 8125,
+      host: 'localhost'
+    });
+    mockServer.replyWith([ '-1', '77' ]);
+    z.listen('window_created').then(function(window){
+      assert.equal(window.id, 77);
+    }).then(done, done);
   });
 
 });

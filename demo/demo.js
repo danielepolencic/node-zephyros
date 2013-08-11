@@ -7,16 +7,16 @@ var z = new Zephyros({
   host: 'localhost'
 });
 
-z.bind('t', ['Cmd', 'Shift']).thenClipboardContents().then(function(clip){
+z.bind('t', ['Cmd', 'Shift']).thenGetClipboardContents().then(function(clip){
   console.log("clip: ", clip);
 });
 
-z.bind('r', ['Cmd', 'Shift']).thenFocusedWindow().then(function(window){
+z.bind('r', ['Cmd', 'Shift']).thenGetFocusedWindow().then(function(window){
   console.log("window: ", window);
 });
 
 z.bind('right', ['Cmd', 'Alt', 'Ctrl'])
-.thenFocusedWindow()
+.thenGetFocusedWindow()
 .thenGetWindowFrame()
 .thenSetWindowFrame(function(window){
   var grid = toGridCoordinates( window.frame );
@@ -25,7 +25,7 @@ z.bind('right', ['Cmd', 'Alt', 'Ctrl'])
 });
 
 z.bind('left', ['Cmd', 'Alt', 'Ctrl'])
-.thenFocusedWindow()
+.thenGetFocusedWindow()
 .thenGetWindowFrame()
 .thenSetWindowFrame(function(window){
   var grid = toGridCoordinates( window.frame );
@@ -34,7 +34,7 @@ z.bind('left', ['Cmd', 'Alt', 'Ctrl'])
 });
 
 z.bind('down', ['Cmd', 'Alt', 'Ctrl'])
-.thenFocusedWindow()
+.thenGetFocusedWindow()
 .thenGetWindowFrame()
 .thenSetWindowFrame(function(window){
   var grid = toGridCoordinates( window.frame );
@@ -43,7 +43,7 @@ z.bind('down', ['Cmd', 'Alt', 'Ctrl'])
 });
 
 z.bind('up', ['Cmd', 'Alt', 'Ctrl'])
-.thenFocusedWindow()
+.thenGetFocusedWindow()
 .thenGetWindowFrame()
 .thenSetWindowFrame(function(window){
   var grid = toGridCoordinates( window.frame );
