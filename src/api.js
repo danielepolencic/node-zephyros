@@ -405,3 +405,42 @@ Api.prototype.thenGetScreenFromWindow = function( func ){
   return this;
 };
 
+Api.prototype.thenGetFrameIncludingDockAndMenu = function( func ){
+  var getFrameIncludingDockAndMenu = function( screen ){
+    var deferred = when.defer();
+    if ( (typeof screen === 'undefined') || !screen['id'] || isNaN(screen.id) ) {
+      deferred.reject('Error: screen.id is not a number.');
+    } else {
+      this.client.once(screen.id, 'frame_including_dock_and_menu').then(function(frame){
+        deferred.resolve({
+          id: screen.id,
+          frame: frame
+        });
+      });
+    }
+    return deferred.promise;
+  }.bind(this);
+  this.then( getFrameIncludingDockAndMenu );
+  func ? this.then( func ) : null;
+  return this;
+};
+
+Api.prototype.thenGetFrameWithoutDockOrMenu = function( func ){
+  var getFrameWithoutDockOrMenu = function( screen ){
+    var deferred = when.defer();
+    if ( (typeof screen === 'undefined') || !screen['id'] || isNaN(screen.id) ) {
+      deferred.reject('Error: screen.id is not a number.');
+    } else {
+      this.client.once(screen.id, 'frame_without_dock_or_menu').then(function(frame){
+        deferred.resolve({
+          id: screen.id,
+          frame: frame
+        });
+      });
+    }
+    return deferred.promise;
+  }.bind(this);
+  this.then( getFrameWithoutDockOrMenu );
+  func ? this.then( func ) : null;
+  return this;
+};

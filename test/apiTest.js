@@ -219,7 +219,7 @@ describe('Api', function(){
 
     });
 
-    describe.only('window', function(){
+    describe('window', function(){
 
       it('should get the title', function(done){
         api = new Api(client.replyWith('This is the title'));
@@ -369,6 +369,32 @@ describe('Api', function(){
           assert.equal(screen.id, 3);
         })
         .force().then(done, done);
+      });
+
+    });
+
+    describe('screen', function(){
+
+      it('should get the frame including dock and menu', function(done){
+        api = new Api( client.replyWith({x: 3, y: 4, w: 1, h: 2}) );
+        api
+        .then( function(){ return {id: 4}; } )
+        .thenGetFrameIncludingDockAndMenu(function(screen){
+          assert.equal(screen.id, 4);
+          assert.equal(screen.frame.x, 3);
+          assert.equal(screen.frame.h, 2);
+        }).force().then(done, done);
+      });
+
+      it('should get the frame without the dock or menu', function(done){
+        api = new Api( client.replyWith({x: 4, y: 5, w: 2, h: 3}) );
+        api
+        .then( function(){ return {id: 5}; } )
+        .thenGetFrameWithoutDockOrMenu(function(screen){
+          assert.equal(screen.id, 5);
+          assert.equal(screen.frame.x, 4);
+          assert.equal(screen.frame.h, 3);
+        }).force().then(done, done);
       });
 
     });
