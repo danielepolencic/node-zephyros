@@ -110,33 +110,6 @@ describe('Api', function(){
         }).force().then(done, done);
       });
 
-      it('should get the window frame', function(done){
-        api = new Api( client.replyWith({x: 1, y: 2, w: 3, h: 4}) );
-        api
-        .then(function(){ return { id: 67 }; })
-        .thenGetWindowFrame().then(function(window){
-          assert.equal(window.id, 67);
-          assert.equal(window.frame.x, 1);
-        })
-        .force().then(done, done);
-      });
-
-      it('should set the window frame', function(done){
-        client.replyWith('OK').interceptMessage(function(id, command, frame){
-          assert.equal(id, 78);
-          assert.equal(frame.h, 4);
-        });
-        api = new Api( client );
-        api
-        .thenSetWindowFrame(function(){
-          return {
-            id: 78,
-            frame: {x: 1, y: 2, w: 3, h: 4}
-          };
-        })
-        .force().then(done, done);
-      });
-
       it('should relaunch the config', function(done){
         client.replyWith('OK').interceptMessage(function(id, command){
           assert.equal(command, 'relaunch_config');
@@ -242,6 +215,160 @@ describe('Api', function(){
         api = new Api( client );
         api
         .thenUpdateSettings().force().then(done, done);
+      });
+
+    });
+
+    describe.only('window', function(){
+
+      it('should get the title', function(done){
+        api = new Api(client.replyWith('This is the title'));
+        api
+        .then( function(){ return {id: 3} } )
+        .thenGetWindowTitle(function(window){
+          assert.equal(window.id, 3);
+          assert.equal(window.title, 'This is the title');
+        })
+        .force().then(done, done);
+      });
+
+      it('should get the window frame', function(done){
+        api = new Api( client.replyWith({x: 1, y: 2, w: 3, h: 4}) );
+        api
+        .then(function(){ return { id: 67 }; })
+        .thenGetWindowFrame().then(function(window){
+          assert.equal(window.id, 67);
+          assert.equal(window.frame.x, 1);
+        })
+        .force().then(done, done);
+      });
+
+      it('should set the window frame', function(done){
+        client.replyWith('OK').interceptMessage(function(id, command, frame){
+          assert.equal(id, 78);
+          assert.equal(frame.h, 4);
+        });
+        api = new Api( client );
+        api
+        .thenSetWindowFrame(function(){
+          return {
+            id: 78,
+            frame: {x: 1, y: 2, w: 3, h: 4}
+          };
+        })
+        .force().then(done, done);
+      });
+
+      it('should set the window to the top left corner', function(done){
+        client.replyWith('OK').interceptMessage(function(id, command, origin){
+          assert.equal(id, 66);
+          assert.equal(origin.x, 4);
+          assert.equal(origin.y, 5);
+        });
+        api = new Api( client );
+        api
+        .thenSetWindowOrigin(function(){
+          return {
+            id: 66,
+            origin: {x: 4, y: 5}
+          };
+        })
+        .force().then(done, done);
+      });
+
+      it('should set the window size', function(done){
+        client.replyWith('OK').interceptMessage(function(id, command, size){
+          assert.equal(id, 96);
+          assert.equal(size.w, 8);
+          assert.equal(size.h, 10);
+        });
+        api = new Api( client );
+        api
+        .thenSetWindowSize(function(){
+          return {
+            id: 96,
+            size: {w: 8, h: 10}
+          };
+        })
+        .force().then(done, done);
+      });
+
+      it('should get the window top left corner', function(done){
+        api = new Api( client.replyWith({x: 4, y: 5}) );
+        api
+        .then(function(){ return {id: 7}; })
+        .thenGetWindowOrigin(function(window){
+          assert.equal(window.id, 7);
+          assert.equal(window.origin.x, 4);
+        })
+        .force().then(done, done);
+      });
+
+      it('should get the window size', function(done){
+        api = new Api( client.replyWith({w: 7, h: 6}) );
+        api
+        .then(function(){ return {id: 3}; })
+        .thenGetWindowSize(function(window){
+          assert.equal(window.id, 3);
+          assert.equal(window.size.w, 7);
+        })
+        .force().then(done, done);
+      });
+
+      it('should maximize the window', function(done){
+        client.replyWith('OK').interceptMessage(function(id, command){
+          assert.equal(id, 96);
+          assert.equal(command, 'maximize');
+        });
+        api = new Api( client );
+        api
+        .then( function(){ return {id: 96} } )
+        .thenWindowMaximize()
+        .force().then(done, done);
+      });
+
+      it('should minimize the window', function(done){
+        client.replyWith('OK').interceptMessage(function(id, command){
+          assert.equal(id, 86);
+          assert.equal(command, 'minimize');
+        });
+        api = new Api( client );
+        api
+        .then( function(){ return {id: 86} } )
+        .thenWindowMinimize()
+        .force().then(done, done);
+      });
+
+      it('should unminimize the window', function(done){
+        client.replyWith('OK').interceptMessage(function(id, command){
+          assert.equal(id, 94);
+          assert.equal(command, 'un_minimize');
+        });
+        api = new Api( client );
+        api
+        .then( function(){ return {id: 94} } )
+        .thenWindowUnminimize()
+        .force().then(done, done);
+      });
+
+      it('should get the app from the current window', function(done){
+        api = new Api( client.replyWith(44) );
+        api
+        .then(function(){ return {id: 3}; })
+        .thenGetAppFromWindow(function(app){
+          assert.equal(app.id, 44);
+        })
+        .force().then(done, done);
+      });
+
+      it('should get the screen of the current window', function(done){
+        api = new Api( client.replyWith(3) );
+        api
+        .then(function(){ return {id: 8}; })
+        .thenGetScreenFromWindow(function(screen){
+          assert.equal(screen.id, 3);
+        })
+        .force().then(done, done);
       });
 
     });

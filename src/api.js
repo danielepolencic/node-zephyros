@@ -238,3 +238,170 @@ Api.prototype.thenUpdateSettings = function( func ){
   return this;
 };
 
+Api.prototype.thenGetWindowTitle = function( func ){
+  var getWindowTitle = function( window ){
+    var deferred = when.defer();
+    if ( (typeof window === 'undefined') || !window['id'] || isNaN(window.id) ) {
+      deferred.reject('Error: window.id is not a number.');
+    } else {
+      this.client.once(window.id, 'title').then(function(title){
+        deferred.resolve({
+          id: window.id,
+          title: title
+        });
+      });
+    }
+    return deferred.promise;
+  }.bind(this);
+  this.then( getWindowTitle );
+  func ? this.then( func ) : null;
+  return this;
+};
+
+Api.prototype.thenSetWindowOrigin = function( func ){
+  if( typeof func === 'function' ){
+    this.then( func );
+  } else {
+    return this;
+  }
+  var setWindowTopLeft = function( window ){
+    var deferred = when.defer();
+    this.client.once(window.id, 'set_top_left', window.origin).then(function(){
+      deferred.resolve();
+    });
+    return deferred.promise;
+  }.bind(this);
+  this.then( setWindowTopLeft );
+  return this;
+};
+
+Api.prototype.thenSetWindowSize = function( func ){
+  if( typeof func === 'function' ){
+    this.then( func );
+  } else {
+    return this;
+  }
+  var setWindowSize = function( window ){
+    var deferred = when.defer();
+    this.client.once(window.id, 'set_size', window.size).then(function(){
+      deferred.resolve();
+    });
+    return deferred.promise;
+  }.bind(this);
+  this.then( setWindowSize );
+  return this;
+};
+
+Api.prototype.thenGetWindowOrigin = function( func ){
+  var getWindowOrigin = function( window ){
+    var deferred = when.defer();
+    if ( (typeof window === 'undefined') || !window['id'] || isNaN(window.id) ) {
+      deferred.reject('Error: window.id is not a number.');
+    } else {
+      this.client.once(window.id, 'top_left').then(function(origin){
+        deferred.resolve({
+          id: window.id,
+          origin: origin
+        });
+      });
+    }
+    return deferred.promise;
+  }.bind(this);
+  this.then( getWindowOrigin );
+  func ? this.then( func ) : null;
+  return this;
+};
+
+Api.prototype.thenGetWindowSize = function( func ){
+  var getWindowSize = function( window ){
+    var deferred = when.defer();
+    if ( (typeof window === 'undefined') || !window['id'] || isNaN(window.id) ) {
+      deferred.reject('Error: window.id is not a number.');
+    } else {
+      this.client.once(window.id, 'size').then(function(size){
+        deferred.resolve({
+          id: window.id,
+          size: size
+        });
+      });
+    }
+    return deferred.promise;
+  }.bind(this);
+  this.then( getWindowSize );
+  func ? this.then( func ) : null;
+  return this;
+};
+
+Api.prototype.thenWindowMaximize = function( func ){
+  var windowMaximize = function( window ){
+    var deferred = when.defer();
+    this.client.once(window.id, 'maximize').then(function(){
+      deferred.resolve();
+    });
+    return deferred.promise;
+  }.bind(this);
+  this.then( windowMaximize );
+  func ? this.then( func ) : null;
+  return this;
+};
+
+Api.prototype.thenWindowMinimize = function( func ){
+  var windowMinimize = function( window ){
+    var deferred = when.defer();
+    this.client.once(window.id, 'minimize').then(function(){
+      deferred.resolve();
+    });
+    return deferred.promise;
+  }.bind(this);
+  this.then( windowMinimize );
+  func ? this.then( func ) : null;
+  return this;
+};
+
+Api.prototype.thenWindowUnminimize = function( func ){
+  var windowUnminimize = function( window ){
+    var deferred = when.defer();
+    this.client.once(window.id, 'un_minimize').then(function(){
+      deferred.resolve();
+    });
+    return deferred.promise;
+  }.bind(this);
+  this.then( windowUnminimize );
+  func ? this.then( func ) : null;
+  return this;
+};
+
+Api.prototype.thenGetAppFromWindow = function( func ){
+  var getAppFromWindow = function( window ){
+    var deferred = when.defer();
+    if ( (typeof window === 'undefined') || !window['id'] || isNaN(window.id) ) {
+      deferred.reject('Error: window.id is not a number.');
+    } else {
+      this.client.once(window.id, 'app').then(function(app_id){
+        deferred.resolve({ id: app_id });
+      });
+    }
+    return deferred.promise;
+  }.bind(this);
+  this.then( getAppFromWindow );
+  func ? this.then( func ) : null;
+  return this;
+};
+
+Api.prototype.thenGetScreenFromWindow = function( func ){
+  var getScreenFromWindow = function( window ){
+    var deferred = when.defer();
+    if ( (typeof window === 'undefined') || !window['id'] || isNaN(window.id) ) {
+      deferred.reject('Error: window.id is not a number.');
+    } else {
+      this.client.once(window.id, 'screen').then(function(screen_id){
+        deferred.resolve({ id: screen_id });
+      });
+    }
+    return deferred.promise;
+  }.bind(this);
+  this.then( getScreenFromWindow );
+  func ? this.then( func ) : null;
+  return this;
+};
+
