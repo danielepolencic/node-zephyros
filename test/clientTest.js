@@ -4,8 +4,6 @@ var assert = require('assert'),
     MockServer = require('./mockServer'),
     Client = require('./../src/client');
 
-require('when/monitor/console');
-
 describe('Client', function(){
 
   var mockServer;
