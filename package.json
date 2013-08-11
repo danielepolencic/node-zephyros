@@ -1,6 +1,6 @@
 {
   "name": "zephyros",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Daniele Polencic <daniele.polencic@gmail.com>",
   "scripts": {
     "test": "mocha test"
