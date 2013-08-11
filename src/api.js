@@ -29,8 +29,8 @@ Api.prototype.then = function( func ){
   return this;
 };
 
-Api.prototype.force = function( onFulfilled, onRejected ){
-  return pipeline(this.stack.slice(0)).then( onFulfilled, onRejected );
+Api.prototype.force = function( seed ){
+  return pipeline(this.stack.slice(0), seed);
 };
 
 Api.prototype.thenGetFocusedWindow = function( func ){

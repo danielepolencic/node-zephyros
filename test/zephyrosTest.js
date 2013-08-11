@@ -44,4 +44,15 @@ describe('Zephyros', function(){
     });
   });
 
+  it('should listen for two events', function(done){
+    var z = new Zephyros({
+      port: 8125,
+      host: 'localhost'
+    });
+    mockServer.replyWith([ '-1', '77' ]);
+    z.listen('window_created').then(function(window){
+      assert.equal(window.id, 77);
+    }).then(done, done);
+  });
+
 });
