@@ -134,6 +134,113 @@ describe.only('Api', function(){
       .force(done, done);
     });
 
+    it('should relaunch the config', function(done){
+      client.replyWith('OK').interceptMessage(function(id, command){
+        assert.equal(command, 'relaunch_config');
+      });
+      api = new Api( client );
+      api
+      .thenRelaunchConfig()
+      .force(done, done);
+    });
+
+    it('should get all the visible windows', function(done){
+      api = new Api( client.replyWith([5, 6, 7]) );
+      api
+      .thenGetVisibleWindows(function(windows){
+        assert.equal(windows.length, 3);
+        assert.equal(windows[0].id, 5);
+      }).force(done, done);
+    });
+
+    it('should get all windows', function(done){
+      api = new Api( client.replyWith([7, 8, 9]) );
+      api
+      .thenGetAllWindows(function(windows){
+        assert.equal(windows.length, 3);
+        assert.equal(windows[0].id, 7);
+      }).force(done, done);
+    });
+
+    it('should get the main screen', function(done){
+      api = new Api( client.replyWith(32) );
+      api
+      .thenGetMainScreen(function(screen){
+        assert.equal(screen.id, 32);
+      }).force(done, done);
+    });
+
+    it('should get all screens', function(done){
+      api = new Api( client.replyWith([9, 5, 3]) );
+      api
+      .thenGetAllScreens(function(screens){
+        assert.equal(screens.length, 3);
+        assert.equal(screens[2].id, 3);
+      }).force(done, done);
+    });
+
+    it('should get all the running apps', function(done){
+      api = new Api( client.replyWith([8, 6, 0]) );
+      api
+      .thenGetRunningApps(function(apps){
+        assert.equal(apps.length, 3);
+        assert.equal(apps[2].id, 0);
+      }).force(done, done);
+    });
+
+    it('should prompt an alert', function(done){
+      client.replyWith('OK').interceptMessage(function(id, command, message, duration){
+        assert.equal(command, 'alert');
+        assert.equal(message, 'My Alert');
+        assert.equal(duration, 3);
+      });
+      api = new Api( client );
+      api
+      .thenAlert(function(){
+        return {
+          message: 'My Alert',
+          duration: 3
+        }
+      }).force(done, done);
+    });
+
+    it('should log something', function(done){
+      client.replyWith('OK').interceptMessage(function(id, command, message){
+        assert.equal(command, 'log');
+        assert.equal(message, 'log something');
+      });
+      api = new Api( client );
+      api
+      .thenLog('log something').force(done, done);
+    });
+
+    it('should choose from a list', function(done){
+      client.replyWith([0, 1]);
+      api = new Api( client );
+      api
+      .thenChooseFrom(function(){
+        return {
+          title: 'My Todo List',
+          list: ['One banana', 'Two cherries'],
+          lines_tall: 4,
+          chars_wide: 5
+        };
+      })
+      .then(function(index_chosen){
+        assert.equal(index_chosen, 1);
+      })
+      .force(done, done);
+    });
+
+    it('should update the settings', function(done){
+      client.replyWith('OK').interceptMessage(function(id, command){
+        assert.equal(command, 'update_settings');
+      });
+      api = new Api( client );
+      api
+      .thenUpdateSettings().force(done, done);
+    });
+
   });
 
 });
