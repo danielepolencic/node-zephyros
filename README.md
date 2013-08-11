@@ -1,19 +1,19 @@
-# Zephyros
+# Zephyros [![Build Status](https://travis-ci.org/danielepolencic/zephyros.png)](https://travis-ci.org/danielepolencic/zephryos)
 Node.js adapter for [Zephyros](https://github.com/sdegutis/zephyros).
 
 ## Usage
 Include `zephiros` in your script and you're ready to go!
 
-        var Zephyros = require('zephyros');
+    var Zephyros = require('zephyros');
 
-        var z = new Zephyros({
-          port: 1235,
-          host: 'localhost'
-        });
+    var z = new Zephyros({
+      port: 1235,
+      host: 'localhost'
+    });
 
-        z.bind('t', ['Cmd', 'Shift']).thenClipboardContents().then(function(clipboard){
-          console.log("clipboard: ", clipboard);
-        });
+    z.bind('t', ['Cmd', 'Shift']).thenClipboardContents().then(function(clipboard){
+      console.log("clipboard: ", clipboard);
+    });
 
 ## API
 *Please note that this is a partial implementation of all the APIs available.*
