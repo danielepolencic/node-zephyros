@@ -444,3 +444,18 @@ Api.prototype.thenGetFrameWithoutDockOrMenu = function( func ){
   func ? this.then( func ) : null;
   return this;
 };
+
+['left', 'right', 'up', 'down'].forEach(function(direction){
+  Api.prototype['thenFocusWindow' + (direction.charAt(0).toUpperCase() + direction.slice(1))] = function( func ){
+    var focusWindow = function( window ){
+      var deferred = when.defer();
+      this.client.once(window.id, 'focus_window_' + direction).then(function(){
+        deferred.resolve();
+      });
+      return deferred.promise;
+    }.bind(this);
+    this.then( focusWindow );
+    func ? this.then( func ) : null;
+    return this;
+  };
+});

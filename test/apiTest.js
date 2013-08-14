@@ -371,6 +371,20 @@ describe('Api', function(){
         .force().then(done, done);
       });
 
+      ['left', 'right', 'up', 'down'].forEach(function(direction){
+        it('should focus the window ' + direction, function(done){
+          client.replyWith('OK').interceptMessage(function(id, command){
+            assert.equal(id, 9);
+            assert.equal(command, 'focus_window_' + direction);
+          });
+          api = new Api( client );
+          api
+          .then( function(){ return {id: 9} } )
+          ['thenFocusWindow' + (direction.charAt(0).toUpperCase() + direction.slice(1))]()
+          .force().then(done, done);
+        });
+      });
+
     });
 
     describe('screen', function(){
