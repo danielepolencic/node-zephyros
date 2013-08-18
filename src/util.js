@@ -1,101 +1,78 @@
 var when = require('when'),
+    _ = require('lodash'),
     util = {};
 
 exports = module.exports = util;
 
-util.thenRelaunchConfig = function( func ){
-  func ? this.then( func ) : null;
-  var relaunchConfig = function(){
-    var deferred = when.defer();
-    this.client.once(0, 'relaunch_config').then(function(){
-      deferred.resolve();
-    });
-    return deferred.promise;
-  }.bind(this);
-  this.then( relaunchConfig );
-  return this;
-};
+_.mixin({
+  'underscore': function(string) {
+    return string.replace(/([A-Z])/g, function($1){ return "_" + $1.toLowerCase(); });
+  }
+});
 
-util.thenGetClipboardContents = function( func ){
-  var getClipboardContents = function(){
-    var deferred = when.defer();
-    this.client.once(0, 'clipboard_contents').then(function(clipboard){
-      deferred.resolve(clipboard);
-    });
-    return deferred.promise;
-  }.bind(this);
-  this.then( getClipboardContents );
-  this.then( func );
-  return this;
-};
+['relaunchConfig', 'clipboardContents', 'updateSettings'].forEach(function(action){
+  util[action] = function(){
 
-util.thenAlert = function( func_or_obj ){
-  if( typeof func_or_obj === 'function' ){
-    this.then( func_or_obj );
-  } else if( !!func_or_obj && func_or_obj['message'] && func_or_obj['duration'] ){
-    this.then( function(){ return func_or_obj; } );
-  } else {
+    this.stack.push(function(){
+      return this.client.once(0, _.underscore(action));
+    }.bind(this));
+
     return this;
-  }
-  var promptAlert = function( alert ){
-    var deferred = when.defer();
-    this.client.once(0, 'alert', alert.message, alert.duration).then(function(){
-      deferred.resolve();
-    });
-    return deferred.promise;
-  }.bind(this);
-  this.then( promptAlert );
+  };
+});
+
+util.alert = function( func ){
+  if(  _.isUndefined(func) ){ return this; }
+  if(  _.isFunction(func) ){ this.stack.push(func); }
+  if(  _.isString(func) ){
+    this.stack.push(function(){ return { message: func }; });
+  };
+  if(  _.isObject(func) && _.isString(func.message) ){
+    this.stack.push(function(){ return func; });
+  };
+
+  this.stack.push(function(alert){
+    if ( _.isUndefined(alert) || !_.isString(alert.message) ) { return this; }
+    return this.client.once(0, 'alert', alert.message, alert.duration || 2000);
+  }.bind(this));
+
   return this;
 };
 
-util.thenLog = function( func_or_else ){
-  if( typeof func_or_else === 'function' ){
-    this.then( func_or_else );
-  } else {
-    this.then( function(){ return func_or_else + ''; } );
-  }
-  var log = function( message ){
-    var deferred = when.defer();
-    this.client.once(0, 'log', message).then(function(){
-      deferred.resolve();
-    });
-    return deferred.promise;
-  }.bind(this);
-  this.then( log );
+util.log = function( func ){
+  if(  _.isUndefined(func) ){ return this; }
+  if(  _.isFunction(func) ){ this.stack.push(func); }
+  if(  _.isString(func) ){
+    this.stack.push(function(){ return func; });
+  };
+
+  this.stack.push(function(log){
+    if ( _.isUndefined(log) || !_.isString(log) ) { return this; }
+    return this.client.once(0, 'log', log);
+  }.bind(this));
+
   return this;
 };
 
-util.thenChooseFrom = function( func_or_obj ){
-  if( typeof func_or_obj === 'function' ){
-    this.then( func_or_obj );
-  } else if( !!func_or_obj && func_or_obj['list'] ){
-    func_or_obj['title'] = func_or_obj['title'] || 'Choose From';
-    func_or_obj['lines_tall'] = func_or_obj['lines_tall'] || 5;
-    func_or_obj['chars_wide'] = func_or_obj['chars_wide'] || 30;
-    this.then( function(){ return func_or_obj; } );
-  } else {
-    return this;
-  }
-  var chooseFrom = function( message ){
-    var deferred = when.defer();
-    this.client.once(0, 'choose_from', func_or_obj['list'], func_or_obj['title'], func_or_obj['lines_tall'], func_or_obj['chars_wide']).then(function(message){
-      deferred.resolve(message[1]);
-    });
-    return deferred.promise;
-  }.bind(this);
-  this.then( chooseFrom );
-  return this;
-};
+util.chooseFrom = function( func ){
+  if(  _.isUndefined(func) ){ return this; }
+  if(  _.isFunction(func) ){ this.stack.push(func); }
+  if(  _.isObject(func) && _.isArray(func.list) && !_.isEmpty(func.list) ){
+    this.stack.push(function(){ return func; });
+  };
 
-util.thenUpdateSettings = function( func ){
-  var updateSettings = function( message ){
-    var deferred = when.defer();
-    this.client.once(0, 'update_settings').then(function(){
-      deferred.resolve();
-    });
-    return deferred.promise;
-  }.bind(this);
-  this.then( updateSettings );
-  func ? this.then( func ) : null;
+  this.stack.push(function(chooseFrom){
+    var popup = {
+      title: 'Choose From',
+      lines_tall: 5,
+      chars_wide: 30,
+      list: []
+    };
+    _.extend( popup, chooseFrom );
+    return this.client.once(0, 'choose_from', popup.list, popup.title, popup.lines_tall, popup.chars_wide).then(function(message){
+      return message[1];
+    })
+  }.bind(this));
+
   return this;
 };

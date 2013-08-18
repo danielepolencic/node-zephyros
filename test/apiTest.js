@@ -14,7 +14,7 @@ describe('Api', function(){
     });
 
     it('should push two calls to the stack', function(){
-      api.thenGetClipboardContents().then(function(){});
+      api.clipboardContents().then(function(){});
       assert.equal(api.stack.length, 2);
     });
 
@@ -95,7 +95,7 @@ describe('Api', function(){
 
       it('should get the clipboard content', function(done){
         api = new Api( client.replyWith('This is my clipboard') );
-        api.thenGetClipboardContents().then(function(clipboard){
+        api.clipboardContents().then(function(clipboard){
           assert.equal('This is my clipboard', clipboard);
         }).force().then(done, done);
       });
@@ -108,12 +108,12 @@ describe('Api', function(){
       });
 
       it('should relaunch the config', function(done){
-        client.replyWith('OK').interceptMessage(function(id, command){
+        client.replyWith(null).interceptMessage(function(id, command){
           assert.equal(command, 'relaunch_config');
         });
         api = new Api( client );
         api
-        .thenRelaunchConfig()
+        .relaunchConfig()
         .force().then(done, done);
       });
 
@@ -139,7 +139,8 @@ describe('Api', function(){
       it('should get the main screen', function(done){
         api = new Api( client.replyWith(32) );
         api
-        .thenGetMainScreen(function(screen){
+        .mainScreen()
+        .then(function(screen){
           assert.equal(screen.id, 32);
         }).force().then(done, done);
       });
@@ -147,7 +148,8 @@ describe('Api', function(){
       it('should get all screens', function(done){
         api = new Api( client.replyWith([9, 5, 3]) );
         api
-        .thenGetAllScreens(function(screens){
+        .screens()
+        .then(function(screens){
           assert.equal(screens.length, 3);
           assert.equal(screens[2].id, 3);
         }).force().then(done, done);
@@ -156,21 +158,22 @@ describe('Api', function(){
       it('should get all the running apps', function(done){
         api = new Api( client.replyWith([8, 6, 0]) );
         api
-        .thenGetRunningApps(function(apps){
+        .runningApps()
+        .then(function(apps){
           assert.equal(apps.length, 3);
           assert.equal(apps[2].id, 0);
         }).force().then(done, done);
       });
 
       it('should prompt an alert', function(done){
-        client.replyWith('OK').interceptMessage(function(id, command, message, duration){
+        client.replyWith(null).interceptMessage(function(id, command, message, duration){
           assert.equal(command, 'alert');
           assert.equal(message, 'My Alert');
           assert.equal(duration, 3);
         });
         api = new Api( client );
         api
-        .thenAlert(function(){
+        .alert(function(){
           return {
             message: 'My Alert',
             duration: 3
@@ -179,20 +182,20 @@ describe('Api', function(){
       });
 
       it('should log something', function(done){
-        client.replyWith('OK').interceptMessage(function(id, command, message){
+        client.replyWith(null).interceptMessage(function(id, command, message){
           assert.equal(command, 'log');
           assert.equal(message, 'log something');
         });
         api = new Api( client );
         api
-        .thenLog('log something').force().then(done, done);
+        .log('log something').force().then(done, done);
       });
 
       it('should choose from a list', function(done){
         client.replyWith([0, 1]);
         api = new Api( client );
         api
-        .thenChooseFrom(function(){
+        .chooseFrom(function(){
           return {
             title: 'My Todo List',
             list: ['One banana', 'Two cherries'],
@@ -207,12 +210,12 @@ describe('Api', function(){
       });
 
       it('should update the settings', function(done){
-        client.replyWith('OK').interceptMessage(function(id, command){
+        client.replyWith(null).interceptMessage(function(id, command){
           assert.equal(command, 'update_settings');
         });
         api = new Api( client );
         api
-        .thenUpdateSettings().force().then(done, done);
+        .updateSettings().force().then(done, done);
       });
 
     });
@@ -329,7 +332,8 @@ describe('Api', function(){
         api = new Api( client.replyWith(44) );
         api
         .then(function(){ return {id: 3}; })
-        .thenGetAppFromWindow(function(app){
+        .appFromWindow()
+        .then(function(app){
           assert.equal(app.id, 44);
         })
         .force().then(done, done);
@@ -339,7 +343,8 @@ describe('Api', function(){
         api = new Api( client.replyWith(3) );
         api
         .then(function(){ return {id: 8}; })
-        .thenGetScreenFromWindow(function(screen){
+        .screenFromWindow()
+        .then(function(screen){
           assert.equal(screen.id, 3);
         })
         .force().then(done, done);
@@ -367,7 +372,8 @@ describe('Api', function(){
         api = new Api( client.replyWith({x: 3, y: 4, w: 1, h: 2}) );
         api
         .then( function(){ return {id: 4}; } )
-        .thenGetFrameIncludingDockAndMenu(function(screen){
+        .frameIncludingDockAndMenu()
+        .then(function(screen){
           assert.equal(screen.id, 4);
           assert.equal(screen.frame.x, 3);
           assert.equal(screen.frame.h, 2);
@@ -378,7 +384,8 @@ describe('Api', function(){
         api = new Api( client.replyWith({x: 4, y: 5, w: 2, h: 3}) );
         api
         .then( function(){ return {id: 5}; } )
-        .thenGetFrameWithoutDockOrMenu(function(screen){
+        .frameWithoutDockOrMenu()
+        .then(function(screen){
           assert.equal(screen.id, 5);
           assert.equal(screen.frame.x, 4);
           assert.equal(screen.frame.h, 3);

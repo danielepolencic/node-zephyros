@@ -1,36 +1,28 @@
 var when = require('when'),
+    _ = require('lodash'),
     app = {};
 
 exports = module.exports = app;
 
-app.thenGetAppFromWindow = function( func ){
-  var getAppFromWindow = function( window ){
-    var deferred = when.defer();
-    if ( (typeof window === 'undefined') || !window['id'] || isNaN(window.id) ) {
-      deferred.reject('Error: window.id is not a number.');
-    } else {
-      this.client.once(window.id, 'app').then(function(app_id){
-        deferred.resolve({ id: app_id });
-      });
-    }
-    return deferred.promise;
-  }.bind(this);
-  this.then( getAppFromWindow );
-  func ? this.then( func ) : null;
-  return this;
-};
+app.appFromWindow = function(){
+  this.stack.push(function(window){
+    if ( _.isUndefined(window) || !_.isNumber(window.id) ) { return this; }
 
-app.thenGetRunningApps = function( func ){
-  var getRunningApps = function(){
-    var deferred = when.defer();
-    this.client.once(0, 'running_apps').then(function(apps_ids){
-      var apps = apps_ids.map(function(id){ return {id: id}; });
-      deferred.resolve(apps);
+    return this.client.once(window.id, 'app').then(function(app_id){
+      return { id: app_id };
     });
-    return deferred.promise;
-  }.bind(this);
-  this.then( getRunningApps );
-  func ? this.then( func ) : null;
+  }.bind(this));
+
   return this;
 };
 
+app.runningApps = function(){
+
+  this.stack.push(function(window){
+    return this.client.once(0, 'running_apps').then(function(apps_ids){
+      return apps_ids.map(function(id){ return {id: id}; });
+    });
+  }.bind(this));
+
+  return this;
+};

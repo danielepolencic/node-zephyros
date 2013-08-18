@@ -23,7 +23,7 @@ describe('Zephyros', function(){
     });
     mockServer.replyWith([ '-1', 'null' ]);
     mockServer.replyWith('My clipboard');
-    z.bind('t', ['Cmd', 'Shift']).thenGetClipboardContents().then(function(clip){
+    z.bind('t', ['Cmd', 'Shift']).clipboardContents().then(function(clip){
       assert.equal(clip, 'My clipboard');
       done();
     });
@@ -37,7 +37,7 @@ describe('Zephyros', function(){
     mockServer.replyWith([ '-1', 'null' ]);
     mockServer.replyWith('Clip');
     z.bind('r', ['Cmd', 'Shift']).then(function(){
-      z.api().thenGetClipboardContents().then(function(clip){
+      z.api().clipboardContents().then(function(clip){
         assert(clip, 'Clip');
         done();
       });
