@@ -79,13 +79,10 @@ describe('Api', function(){
       }
 
       this.once = function(){
+        var deferred = when.defer();
+        deferred.resolve.apply( null, stack.shift() );
         if (beforeSendCallback) beforeSendCallback.apply(null, arguments);
-        return this;
-      };
-
-      this.then = function( callback ){
-        if (callback && stack.length) callback.apply(null, stack.shift());
-        return this;
+        return deferred.promise;
       };
 
     };
@@ -105,7 +102,7 @@ describe('Api', function(){
 
       it('should get the focused window', function(done){
         api = new Api( client.replyWith(99) );
-        api.thenGetFocusedWindow().then(function(window){
+        api.windowFocused().then(function(window){
           assert.equal(window.id, 99);
         }).force().then(done, done);
       });
@@ -123,7 +120,8 @@ describe('Api', function(){
       it('should get all the visible windows', function(done){
         api = new Api( client.replyWith([5, 6, 7]) );
         api
-        .thenGetVisibleWindows(function(windows){
+        .windowsVisible()
+        .then(function(windows){
           assert.equal(windows.length, 3);
           assert.equal(windows[0].id, 5);
         }).force().then(done, done);
@@ -131,8 +129,8 @@ describe('Api', function(){
 
       it('should get all windows', function(done){
         api = new Api( client.replyWith([7, 8, 9]) );
-        api
-        .thenGetAllWindows(function(windows){
+        api.windows()
+        .then(function(windows){
           assert.equal(windows.length, 3);
           assert.equal(windows[0].id, 7);
         }).force().then(done, done);
@@ -225,7 +223,8 @@ describe('Api', function(){
         api = new Api(client.replyWith('This is the title'));
         api
         .then( function(){ return {id: 3} } )
-        .thenGetWindowTitle(function(window){
+        .windowTitle()
+        .then(function(window){
           assert.equal(window.id, 3);
           assert.equal(window.title, 'This is the title');
         })
@@ -236,7 +235,7 @@ describe('Api', function(){
         api = new Api( client.replyWith({x: 1, y: 2, w: 3, h: 4}) );
         api
         .then(function(){ return { id: 67 }; })
-        .thenGetWindowFrame().then(function(window){
+        .getWindowFrame().then(function(window){
           assert.equal(window.id, 67);
           assert.equal(window.frame.x, 1);
         })
@@ -244,13 +243,14 @@ describe('Api', function(){
       });
 
       it('should set the window frame', function(done){
-        client.replyWith('OK').interceptMessage(function(id, command, frame){
+        client.replyWith(null).interceptMessage(function(id, command, frame){
           assert.equal(id, 78);
           assert.equal(frame.h, 4);
         });
         api = new Api( client );
         api
-        .thenSetWindowFrame(function(){
+        .then(function(){ return { id: 78 }; })
+        .setWindowFrame(function(){
           return {
             id: 78,
             frame: {x: 1, y: 2, w: 3, h: 4}
@@ -259,32 +259,16 @@ describe('Api', function(){
         .force().then(done, done);
       });
 
-      it('should set the window to the top left corner', function(done){
-        client.replyWith('OK').interceptMessage(function(id, command, origin){
-          assert.equal(id, 66);
-          assert.equal(origin.x, 4);
-          assert.equal(origin.y, 5);
-        });
-        api = new Api( client );
-        api
-        .thenSetWindowOrigin(function(){
-          return {
-            id: 66,
-            origin: {x: 4, y: 5}
-          };
-        })
-        .force().then(done, done);
-      });
-
       it('should set the window size', function(done){
-        client.replyWith('OK').interceptMessage(function(id, command, size){
+        client.replyWith(null).interceptMessage(function(id, command, size){
           assert.equal(id, 96);
           assert.equal(size.w, 8);
           assert.equal(size.h, 10);
         });
         api = new Api( client );
         api
-        .thenSetWindowSize(function(){
+        .then(function(){ return {id: 96}; })
+        .setWindowSize(function(){
           return {
             id: 96,
             size: {w: 8, h: 10}
@@ -293,22 +277,12 @@ describe('Api', function(){
         .force().then(done, done);
       });
 
-      it('should get the window top left corner', function(done){
-        api = new Api( client.replyWith({x: 4, y: 5}) );
-        api
-        .then(function(){ return {id: 7}; })
-        .thenGetWindowOrigin(function(window){
-          assert.equal(window.id, 7);
-          assert.equal(window.origin.x, 4);
-        })
-        .force().then(done, done);
-      });
-
       it('should get the window size', function(done){
         api = new Api( client.replyWith({w: 7, h: 6}) );
         api
         .then(function(){ return {id: 3}; })
-        .thenGetWindowSize(function(window){
+        .getWindowSize()
+        .then(function(window){
           assert.equal(window.id, 3);
           assert.equal(window.size.w, 7);
         })
@@ -316,38 +290,38 @@ describe('Api', function(){
       });
 
       it('should maximize the window', function(done){
-        client.replyWith('OK').interceptMessage(function(id, command){
+        client.replyWith(null).interceptMessage(function(id, command){
           assert.equal(id, 96);
           assert.equal(command, 'maximize');
         });
         api = new Api( client );
         api
         .then( function(){ return {id: 96} } )
-        .thenWindowMaximize()
+        .maximize()
         .force().then(done, done);
       });
 
       it('should minimize the window', function(done){
-        client.replyWith('OK').interceptMessage(function(id, command){
+        client.replyWith(null).interceptMessage(function(id, command){
           assert.equal(id, 86);
           assert.equal(command, 'minimize');
         });
         api = new Api( client );
         api
         .then( function(){ return {id: 86} } )
-        .thenWindowMinimize()
+        .minimize()
         .force().then(done, done);
       });
 
       it('should unminimize the window', function(done){
-        client.replyWith('OK').interceptMessage(function(id, command){
+        client.replyWith(null).interceptMessage(function(id, command){
           assert.equal(id, 94);
           assert.equal(command, 'un_minimize');
         });
         api = new Api( client );
         api
         .then( function(){ return {id: 94} } )
-        .thenWindowUnminimize()
+        .unminimize()
         .force().then(done, done);
       });
 
@@ -373,14 +347,14 @@ describe('Api', function(){
 
       ['left', 'right', 'up', 'down'].forEach(function(direction){
         it('should focus the window ' + direction, function(done){
-          client.replyWith('OK').interceptMessage(function(id, command){
+          client.replyWith(null).interceptMessage(function(id, command){
             assert.equal(id, 9);
             assert.equal(command, 'focus_window_' + direction);
           });
           api = new Api( client );
           api
           .then( function(){ return {id: 9} } )
-          ['thenFocusWindow' + (direction.charAt(0).toUpperCase() + direction.slice(1))]()
+          ['focusWindow' + (direction.charAt(0).toUpperCase() + direction.slice(1))]()
           .force().then(done, done);
         });
       });

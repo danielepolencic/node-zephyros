@@ -3,6 +3,23 @@ var when = require('when'),
 
 exports = module.exports = screen;
 
+screen.thenGetScreenFromWindow = function( func ){
+  var getScreenFromWindow = function( window ){
+    var deferred = when.defer();
+    if ( (typeof window === 'undefined') || !window['id'] || isNaN(window.id) ) {
+      deferred.reject('Error: window.id is not a number.');
+    } else {
+      this.client.once(window.id, 'screen').then(function(screen_id){
+        deferred.resolve({ id: screen_id });
+      });
+    }
+    return deferred.promise;
+  }.bind(this);
+  this.then( getScreenFromWindow );
+  func ? this.then( func ) : null;
+  return this;
+};
+
 screen.thenGetFrameIncludingDockAndMenu = function( func ){
   var getFrameIncludingDockAndMenu = function( screen ){
     var deferred = when.defer();
