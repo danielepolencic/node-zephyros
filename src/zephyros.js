@@ -1,18 +1,14 @@
 var Api = require('./api'),
-    Client = require('./client');
+    Client = require('./client'),
+    _ = require('lodash');
 
 function Zephyros(options){
   var default_options = {
     port: 1235,
     host: 'localhost'
   };
-  if (options) {
-    options['port'] = options['port'] || default_options.port;
-    options['host'] = options['host'] || default_options.host;
-  } else {
-    options = default_options;
-  }
-  this.client = new Client(options);
+  _.extend(default_options, options);
+  this.client = new Client(default_options);
 }
 
 exports = module.exports = Zephyros;
