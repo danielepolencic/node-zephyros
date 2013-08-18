@@ -36,7 +36,7 @@ describe('Client', function(){
     });
     var i = 0;
     mockServer.replyWith(['-1', 'null', 'null']);
-    client.listen(2, 'another_command').then(function(response){
+    client.listen(2, 'another_command').then(undefined, undefined, function(response){
       i += 1;
       if( i > 1 ){
         assert.equal(i, 2);

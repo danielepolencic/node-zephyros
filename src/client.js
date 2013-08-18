@@ -1,4 +1,6 @@
 var net = require('net'),
+    when = require('when'),
+    _ = require('lodash'),
     uuid = require('node-uuid');
 
 exports = module.exports = Client;
@@ -7,62 +9,69 @@ function Client(options){
   this.queue = {};
   this.client = net.connect(options);
   this.client.on('data', this.onData.bind(this));
+
+  this.once = this.once.bind(this);
 }
 
 Client.prototype.onData = function(data){
-  var raw = data.toString().split(/\s*\d+\n(\[.*\])\s*/gm);
-  raw.forEach(function(item){
-    try {
-      if(!item || 0 === item.length) return;
-      var message = JSON.parse(item);
-      if(!Array.isArray(message)) return;
-      var id = message.shift();
-      var response = message.shift();
+  var packets;
+  packets = data.toString().split(/\s*\d+\n(\[.*\])\s*/gm);
+  packets
+  .map(this.parsePacket, this)
+  .forEach(function(packet){
+    if( packet && packet.id in this.queue ){
+      var callback = this.queue[packet.id];
+      if(callback) callback.call(this, packet.response);
+    };
+  }, this);
+};
 
-      if( ~~response < 0 ) return;
+Client.prototype.parsePacket = function(packet){
+  var message = {}, id, response;
+  if( _.isEmpty(packet) ) { return; }
+  try {
+    message = JSON.parse(packet);
+    if(!_.isArray(message)) { return; }
+    id = message.shift();
+    response = message.shift();
 
-      if( id in this.queue ){
-        var callback = this.queue[id];
-        if (callback) callback.call(null, response);
-      }
-    } catch (e) {
-      console.log("error: ", e)
-    }
-  }.bind(this));
-}
+    if( ~~response < 0 ) { return; }
+
+    return { id: id, response: response };
+  } catch (e) {
+    return;
+  }
+};
 
 Client.prototype.once = function(){
   var args = [].slice.call(arguments);
+  var id = uuid.v4();
 
-  var callback = function( queue, id, response ){
-    if( id in queue ) delete queue[id];
-    this._callback.call(null, response);
+  var deferred = when.defer();
+  this.queue[id] = function(response){
+    delete this.queue[id];
+    deferred.resolve(response);
   };
 
-  return new this.sendCommandAndWait( args, this.queue, this.client, callback );
+  args.unshift(id);
+  var message = JSON.stringify(args);
+  this.client.write(message.length + '\n' + message);
+
+  return deferred.promise;
 };
 
 Client.prototype.listen = function(){
   var args = [].slice.call(arguments);
-
-  var callback = function( queue, id, response ){
-    this._callback.call(null, response);
-  };
-
-  return new this.sendCommandAndWait( args, this.queue, this.client, callback );
-};
-
-Client.prototype.sendCommandAndWait = function( args, queue, client, callback ){
   var id = uuid.v4();
-  this._callback = function(){}
 
-  queue[id] = callback.bind(this, queue, id);
+  var deferred = when.defer();
+  this.queue[id] = function(response){
+    deferred.notify(response);
+  };
 
   args.unshift(id);
   var message = JSON.stringify(args);
-  client.write(message.length + '\n' + message);
+  this.client.write(message.length + '\n' + message);
 
-  this.then = function( callback ){
-    this._callback = callback;
-  };
+  return deferred.promise;
 };
