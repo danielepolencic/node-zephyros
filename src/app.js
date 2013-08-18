@@ -16,7 +16,7 @@ app.appFromWindow = function(){
   return this;
 };
 
-app.runningApps = function(){
+app.apps = function(){
 
   this.stack.push(function(window){
     return this.client.once(0, 'running_apps').then(function(apps_ids){

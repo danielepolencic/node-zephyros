@@ -55,24 +55,51 @@ When a new chain is initialised, ypu can use the API to interact with Windows,
 Apps, Screens and Ohter stuff.
 
 ### Window
-**getFocusedWindow**  
-`getFocusedWindow() ⇒ object`  
-Return an object with the id of the focused window.
+**windowFocused**  
+Return a window object with the id of the focused window.
 
 ```node
-z.bind('t', ['Cmd', 'Shift']).getFocusedWindow().then(function(window){
+z.bind('t', ['Cmd', 'Shift']).windowFocused().then(function(window){
   console.log(window.id);
 });
 ```
 
-**getWindowFrame**  
-`getWindowFrame( window ) ⇒ object`  
-Return a window object with the `id` of the window and the `frame` field that
-contains the origin (top left) and size of the window.
+**windowsVisible**  
+Return an array containing a window object for each visible window.
+
+```node
+z.bind('t', ['Cmd', 'Shift']).windowsVisible().then(function(windows){
+  window.forEach(console.log);
+});
+```
+
+**windows**  
+Return an array containing a window object for all the windows.
+
+```node
+z.bind('t', ['Cmd', 'Shift']).windows().then(function(windows){
+  window.forEach(console.log);
+});
+```
+
+**windowTitle**  
+Return a window object with the `id` of the window and the `title`.
 
 ```node
 z.bind('t', ['Cmd', 'Shift'])
-.getFocusedWindow()
+.windowFocused()
+.windowTitle()
+.then(function(window){
+  console.log(window.title);
+});
+```
+
+**getWindowFrame**  
+Return a window object with the `id` of the window and the `frame`.
+
+```node
+z.bind('t', ['Cmd', 'Shift'])
+.windowFocused()
 .getWindowFrame()
 .then(function(window){
   console.log(window.frame); // {x: 0, y: 0, w: 200, h: 200}
@@ -80,171 +107,197 @@ z.bind('t', ['Cmd', 'Shift'])
 ```
 
 **setWindowFrame**  
-`setWindowFrame( window )`  
 Set the window frame for the window identified by `id`.
 
 ```node
 z.bind('t', ['Cmd', 'Shift'])
-.getFocusedWindow()
+.windowFocused()
 .getWindowFrame()
-.SetWindowFrame(function(window){
+.setWindowFrame(function(window){
   window.frame.w /= 2;
   return window;
 });
 ```
 
-**getVisibleWindows**  
-`getVisibleWindows() ⇒ array`  
-Return an array containing an object for every visible window.
-
-```node
-z.bind('t', ['Cmd', 'Shift']).getVisibleWindows().then(function(windows){
-  window.forEach(console.log);
-});
-```
-
-**getAllWindows**  
-`getAllWindows() ⇒ array`  
-Return an array containing an object for all the windows.
-
-```node
-z.bind('t', ['Cmd', 'Shift']).getAllWindows().then(function(windows){
-  window.forEach(console.log);
-});
-```
-
-**getWindowTitle**  
-`getWindowTitle( window ) ⇒ object`  
-Return a window object with the `id` of the window and the `title`.
-
-```node
-z.bind('t', ['Cmd', 'Shift'])
-.getFocusedWindow()
-.getWindowTitle()
-.then(function(window){
-  console.log(window.title);
-});
-```
-
-**getWindowOrigin**  
-`getWindowOrigin( window ) ⇒ object`  
-Return a window object with the `id` of the window and the `origin` (top
-left corner) of the window.
-
-```node
-z.bind('t', ['Cmd', 'Shift'])
-.getFocusedWindow()
-.getWindowOrigin()
-.then(function(window){
-  console.log(window.frame); // {x: 0, y: 0}
-});
-```
-
-**setWindowOrigin**  
-`setWindowOrigin( window )`  
-Set the `origin` (top left corner) for a certain window `id`.
-
-```node
-z.bind('t', ['Cmd', 'Shift'])
-.getFocusedWindow()
-.getWindowOrigin()
-.setWindowOrigin(function(window){
-  window.frame.x += 100;
-  return window;
-});
-```
-
-**getWindowSize**  
-`getWindowSize( window ) ⇒ object`  
-Return a window object with the `id` of the window and the `size`.
-
-```node
-z.bind('t', ['Cmd', 'Shift'])
-.getFocusedWindow()
-.getWindowSize()
-.then(function(window){
-  console.log(window.frame); // {w: 100, h: 100}
-});
-```
-
-**setWindowSize**  
-`setWindowSize( window )`  
-Set the window the `size` fot a certain window `id`.
-
-```node
-z.bind('t', ['Cmd', 'Shift'])
-.getFocusedWindow()
-.getWindowSize()
-.then(function(window){
-  window.frame.w += 200;
-  return window;
-});
-```
-
-**windowMaximize**  
-`windowMaximize( window )`  
+**maximize**  
 Maximize the window identified by `id`.
 
 ```node
 z.bind('t', ['Cmd', 'Shift'])
-.getFocusedWindow()
-.windowMaximize();
+.windowFocused()
+.maximize();
 ```
 
-**windowMinimize**  
-`windowMinimize( window )`  
+**minimize**  
 Minimize the window identified by `id`.
 
 ```node
 z.bind('t', ['Cmd', 'Shift'])
-.getFocusedWindow()
-.windowMinimize();
+.windowFocused()
+.minimize();
 ```
 
-**windowUnminimize**  
-`windowUnminimize( window )`  
+**unminimize**  
 Unminimize the window identified by `id`.
 
 ```node
 z.bind('t', ['Cmd', 'Shift'])
-.getFocusedWindow()
-.windowUnminimize();
+.windowFocused()
+.unminimize();
 ```
 
-**getAppFromWindow**  
-`getAppFromWindow( window ) ⇒ object`  
-Get the app object from the window identified by `id`.
+**windowFocus{up, down, right, left}**  
+Focus the window identified by `id` to the {right, left, up, down}.
 
 ```node
 z.bind('t', ['Cmd', 'Shift'])
-.getFocusedWindow()
-.getAppFromWindow()
-.then(function(app){
-  console.log(app); //{ id: 1 }
-});
+.windowFocused()
+.windowFocusUp();
 ```
 
-**getScreenFromWindow**  
-`getScreenFromWindow( window ) ⇒ object`  
+### Screen
+**screenFromWindow**  
 Get the screen object from the window identified by `id`.
 
 ```node
 z.bind('t', ['Cmd', 'Shift'])
-.getFocusedWindow()
-.getScreenFromWindow()
+.windowFocused()
+.screenFromWindow()
 .then(function(screen){
   console.log(screen); //{ id: 2 }
 });
 ```
 
-**focusWindow{up, down, right, left}**  
-`focusWindow{up, down, right, left}( window )`  
-Focus the window identified by `id` to the {right, left, up, down}.
+**mainScreen**  
+Get the main screen object.
 
 ```node
 z.bind('t', ['Cmd', 'Shift'])
-.getFocusedWindow()
-.focusWindowUp();
+.mainScreen()
+.then(function(screen){
+  console.log(screen); //{ id: 1 }
+});
+```
+
+**frameIncludingDockAndMenu**  
+Get the frame including the dock and the menu for a screen identified by `id`.
+
+```node
+z.bind('t', ['Cmd', 'Shift'])
+.mainScreen()
+.frameIncludingDockAndMenu()
+.then(function(screen){
+  console.log(screen.frame); //{ x: 0, y: 0, w: 100, h: 100 }
+});
+```
+
+**frameWithoutDockOrMenu**  
+Get the frame without the dock or menu for a screen identified by `id`.
+
+```node
+z.bind('t', ['Cmd', 'Shift'])
+.mainScreen()
+.frameWithoutDockOrMenu()
+.then(function(screen){
+  console.log(screen.frame); //{ x: 0, y: 0, w: 80, h: 80 }
+});
+```
+
+**screens**  
+Return an array containing a screen object for all the screens available.
+
+```node
+z.bind('t', ['Cmd', 'Shift'])
+.screens()
+.then(function(screens){
+  screens.forEach(console.log);
+});
+```
+
+### App
+**getAppFromWindow**  
+Get the app object from the window identified by `id`.
+
+```node
+z.bind('t', ['Cmd', 'Shift'])
+.windowFocused()
+.appFromWindow()
+.then(function(app){
+  console.log(app); //{ id: 1 }
+});
+```
+
+**apps**  
+Return an array containing an app object for all the apps available.
+
+```node
+z.bind('t', ['Cmd', 'Shift'])
+.apps()
+.then(function(screens){
+  screens.forEach(console.log);
+});
+```
+
+### Util
+**clipboardContents**  
+Return a string with the content of the clipboard
+
+```node
+z.bind('t', ['Cmd', 'Shift'])
+.clipboardContents()
+.then(function(clipboard){
+  console.log(clipboard); // Zephyros
+});
+```
+
+**updateSettings**  
+Trigger an update for Zephyros settings.
+
+```node
+z.bind('t', ['Cmd', 'Shift']).updateSettings();
+```
+
+**reloadConfig**  
+Force a reload of the config file.
+
+```node
+z.bind('t', ['Cmd', 'Shift']).reloadConfig();
+```
+
+**alert**  
+Prompt an alter.
+
+```node
+z.bind('t', ['Cmd', 'Shift']).alert({message: 'Hello'});
+z.bind('t', ['Cmd', 'Shift']).alert('Hello'); // as above
+z.bind('t', ['Cmd', 'Shift']).alert(function(){
+  return { message: 'Hello World', duration: 3 };
+}); // as above
+```
+
+**log**  
+Log a string.
+
+```node
+z.bind('t', ['Cmd', 'Shift']).log({message: 'Log'});
+z.bind('t', ['Cmd', 'Shift']).log('Hello'); // as above
+z.bind('t', ['Cmd', 'Shift']).alert(function(){
+  return 'Log';
+}); // as above
+```
+
+**chooseFrom**  
+Choose a list of items from a dinamically populated popup.
+
+```node
+z.bind('t', ['Cmd', 'Shift']).chooseFrom({
+  list: ['Banana', 'Pineapple', 'Orange'],
+  title: 'Fruits',
+  lines_tall: 10,
+  chars_wide: 30
+}).then(function(selected){
+  console.log(selected); // index of the array
+});
 ```
 
 ## Tests

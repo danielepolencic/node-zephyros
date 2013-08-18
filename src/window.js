@@ -80,32 +80,6 @@ window.windowTitle = function(){
   return this;
 };
 
-window.getWindowSize = function(){
-
-  this.stack.push(function(window){
-    if ( _.isUndefined(window) || !_.isNumber(window.id) ) { return this; }
-
-    return this.client.once(window.id, 'size').then(function(size){
-      return { id: window.id, size: size };
-    });
-  }.bind(this));
-
-  return this;
-};
-
-window.setWindowSize = function( func ){
-  if(  !_.isFunction(func) ){ return this; }
-
-  this.stack.push(func);
-  this.stack.push(function(window){
-    if ( _.isUndefined(window) || !_.isNumber(window.id) ) { return this; }
-
-    return this.client.once(window.id, 'set_size', window.size);
-  }.bind(this));
-
-  return this;
-};
-
 ['maximize', 'minimize'].forEach(function(action){
   window[action] = function(){
 
@@ -131,7 +105,7 @@ window.unminimize = function(){
 };
 
 ['left', 'right', 'up', 'down'].forEach(function(direction){
-  window['focusWindow' + _.capitalize(direction)] = function(){
+  window['windowFocus' + _.capitalize(direction)] = function(){
     this.stack.push(function(window){
       if ( _.isUndefined(window) || !_.isNumber(window.id) ) { return this; }
 
