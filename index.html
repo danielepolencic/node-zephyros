@@ -39,14 +39,11 @@
 
 <p>Include <code>zephiros</code> in your script and you're ready to go!</p>
 
-<pre><code>var Zephyros = require('zephyros');
+<pre lang="node"><code>var Zephyros = require('zephyros');
 
-var z = new Zephyros({
-  port: 1235,
-  host: 'localhost'
-});
+var z = new Zephyros();
 
-z.bind('t', ['Cmd', 'Shift']).thenClipboardContents().then(function(clipboard){
+z.bind('t', ['Cmd', 'Shift']).clipboardContents().then(function(clipboard){
   console.log("clipboard: ", clipboard);
 });
 </code></pre>
@@ -54,22 +51,272 @@ z.bind('t', ['Cmd', 'Shift']).thenClipboardContents().then(function(clipboard){
 <h2>
 <a name="api" class="anchor" href="#api"><span class="octicon octicon-link"></span></a>API</h2>
 
-<p><em>Please note that this is a partial implementation of all the APIs available.</em></p>
+<h3>
+<a name="starting-a-chain" class="anchor" href="#starting-a-chain"><span class="octicon octicon-link"></span></a>Starting a chain</h3>
 
-<ul>
-<li><strong>bind( key, Modifiers )</strong></li>
-<li>
-<strong>thenClipboardContents( callback )</strong>, the clipboard is passed as an
-argument to the callback</li>
-<li>
-<strong>thenFocusedWindow( callback )</strong>, the window object with the id of the
-window is passed as an argument to the callback</li>
-<li>
-<strong>thenGetWindowFrame( callback )</strong>, the window object with the id and the frame of the window are passed as an argument to the callback</li>
-<li>
-<strong>thenSetWindowFrame( callback )</strong>, expect the callback to return
-a window object with id and frame properties.</li>
-</ul><h2>
+<p>There are three types of methods that can initiate a new chain:</p>
+
+<p><strong>bind</strong><br><code>bind( key&lt;String&gt;, modifier&lt;Array&gt; )</code><br>
+Listen to a particular key combination and fire the chain every time such
+shortcut is triggered.</p>
+
+<pre lang="node"><code>z.bind('t', ['Cmd', 'Shift']).then(function(){
+  console.log('Hey, you pressed t+⌘⌃');
+});
+</code></pre>
+
+<p><strong>listen</strong><br><code>listen( event&lt;String&gt; )</code><br>
+Listen to a particular event and fire the chain every time this event occurs.
+A comprehensive list of events is available <a href="https://github.com/sdegutis/zephyros/blob/master/Docs/Protocol.md">here</a></p>
+
+<pre lang="node"><code>z.listen('window_created').then(function(){
+  console.log('Hey, you created a new window!');
+});
+</code></pre>
+
+<p><strong>api</strong><br><code>api()</code><br>
+Manually trigger a displsable chain of actions.</p>
+
+<pre lang="node"><code>z.api().then(function(){
+  console.log('Fired only once.');
+});
+</code></pre>
+
+<p>When a new chain is initialised, ypu can use the API to interact with Windows,
+Apps, Screens and Ohter stuff.</p>
+
+<h3>
+<a name="window" class="anchor" href="#window"><span class="octicon octicon-link"></span></a>Window</h3>
+
+<p><strong>windowFocused</strong><br>
+Return a window object with the id of the focused window.</p>
+
+<pre lang="node"><code>z.bind('t', ['Cmd', 'Shift']).windowFocused().then(function(window){
+  console.log(window.id);
+});
+</code></pre>
+
+<p><strong>windowsVisible</strong><br>
+Return an array containing a window object for each visible window.</p>
+
+<pre lang="node"><code>z.bind('t', ['Cmd', 'Shift']).windowsVisible().then(function(windows){
+  window.forEach(console.log);
+});
+</code></pre>
+
+<p><strong>windows</strong><br>
+Return an array containing a window object for all the windows.</p>
+
+<pre lang="node"><code>z.bind('t', ['Cmd', 'Shift']).windows().then(function(windows){
+  window.forEach(console.log);
+});
+</code></pre>
+
+<p><strong>windowTitle</strong><br>
+Return a window object with the <code>id</code> of the window and the <code>title</code>.</p>
+
+<pre lang="node"><code>z.bind('t', ['Cmd', 'Shift'])
+.windowFocused()
+.windowTitle()
+.then(function(window){
+  console.log(window.title);
+});
+</code></pre>
+
+<p><strong>getWindowFrame</strong><br>
+Return a window object with the <code>id</code> of the window and the <code>frame</code>.</p>
+
+<pre lang="node"><code>z.bind('t', ['Cmd', 'Shift'])
+.windowFocused()
+.getWindowFrame()
+.then(function(window){
+  console.log(window.frame); // {x: 0, y: 0, w: 200, h: 200}
+});
+</code></pre>
+
+<p><strong>setWindowFrame</strong><br>
+Set the window frame for the window identified by <code>id</code>.</p>
+
+<pre lang="node"><code>z.bind('t', ['Cmd', 'Shift'])
+.windowFocused()
+.getWindowFrame()
+.setWindowFrame(function(window){
+  window.frame.w /= 2;
+  return window;
+});
+</code></pre>
+
+<p><strong>maximize</strong><br>
+Maximize the window identified by <code>id</code>.</p>
+
+<pre lang="node"><code>z.bind('t', ['Cmd', 'Shift'])
+.windowFocused()
+.maximize();
+</code></pre>
+
+<p><strong>minimize</strong><br>
+Minimize the window identified by <code>id</code>.</p>
+
+<pre lang="node"><code>z.bind('t', ['Cmd', 'Shift'])
+.windowFocused()
+.minimize();
+</code></pre>
+
+<p><strong>unminimize</strong><br>
+Unminimize the window identified by <code>id</code>.</p>
+
+<pre lang="node"><code>z.bind('t', ['Cmd', 'Shift'])
+.windowFocused()
+.unminimize();
+</code></pre>
+
+<p><strong>windowFocus{up, down, right, left}</strong><br>
+Focus the window identified by <code>id</code> to the {right, left, up, down}.</p>
+
+<pre lang="node"><code>z.bind('t', ['Cmd', 'Shift'])
+.windowFocused()
+.windowFocusUp();
+</code></pre>
+
+<h3>
+<a name="screen" class="anchor" href="#screen"><span class="octicon octicon-link"></span></a>Screen</h3>
+
+<p><strong>screenFromWindow</strong><br>
+Get the screen object from the window identified by <code>id</code>.</p>
+
+<pre lang="node"><code>z.bind('t', ['Cmd', 'Shift'])
+.windowFocused()
+.screenFromWindow()
+.then(function(screen){
+  console.log(screen); //{ id: 2 }
+});
+</code></pre>
+
+<p><strong>mainScreen</strong><br>
+Get the main screen object.</p>
+
+<pre lang="node"><code>z.bind('t', ['Cmd', 'Shift'])
+.mainScreen()
+.then(function(screen){
+  console.log(screen); //{ id: 1 }
+});
+</code></pre>
+
+<p><strong>frameIncludingDockAndMenu</strong><br>
+Get the frame including the dock and the menu for a screen identified by <code>id</code>.</p>
+
+<pre lang="node"><code>z.bind('t', ['Cmd', 'Shift'])
+.mainScreen()
+.frameIncludingDockAndMenu()
+.then(function(screen){
+  console.log(screen.frame); //{ x: 0, y: 0, w: 100, h: 100 }
+});
+</code></pre>
+
+<p><strong>frameWithoutDockOrMenu</strong><br>
+Get the frame without the dock or menu for a screen identified by <code>id</code>.</p>
+
+<pre lang="node"><code>z.bind('t', ['Cmd', 'Shift'])
+.mainScreen()
+.frameWithoutDockOrMenu()
+.then(function(screen){
+  console.log(screen.frame); //{ x: 0, y: 0, w: 80, h: 80 }
+});
+</code></pre>
+
+<p><strong>screens</strong><br>
+Return an array containing a screen object for all the screens available.</p>
+
+<pre lang="node"><code>z.bind('t', ['Cmd', 'Shift'])
+.screens()
+.then(function(screens){
+  screens.forEach(console.log);
+});
+</code></pre>
+
+<h3>
+<a name="app" class="anchor" href="#app"><span class="octicon octicon-link"></span></a>App</h3>
+
+<p><strong>getAppFromWindow</strong><br>
+Get the app object from the window identified by <code>id</code>.</p>
+
+<pre lang="node"><code>z.bind('t', ['Cmd', 'Shift'])
+.windowFocused()
+.appFromWindow()
+.then(function(app){
+  console.log(app); //{ id: 1 }
+});
+</code></pre>
+
+<p><strong>apps</strong><br>
+Return an array containing an app object for all the apps available.</p>
+
+<pre lang="node"><code>z.bind('t', ['Cmd', 'Shift'])
+.apps()
+.then(function(screens){
+  screens.forEach(console.log);
+});
+</code></pre>
+
+<h3>
+<a name="util" class="anchor" href="#util"><span class="octicon octicon-link"></span></a>Util</h3>
+
+<p><strong>clipboardContents</strong><br>
+Return a string with the content of the clipboard</p>
+
+<pre lang="node"><code>z.bind('t', ['Cmd', 'Shift'])
+.clipboardContents()
+.then(function(clipboard){
+  console.log(clipboard); // Zephyros
+});
+</code></pre>
+
+<p><strong>updateSettings</strong><br>
+Trigger an update for Zephyros settings.</p>
+
+<pre lang="node"><code>z.bind('t', ['Cmd', 'Shift']).updateSettings();
+</code></pre>
+
+<p><strong>reloadConfig</strong><br>
+Force a reload of the config file.</p>
+
+<pre lang="node"><code>z.bind('t', ['Cmd', 'Shift']).reloadConfig();
+</code></pre>
+
+<p><strong>alert</strong><br>
+Prompt an alter.</p>
+
+<pre lang="node"><code>z.bind('t', ['Cmd', 'Shift']).alert({message: 'Hello'});
+z.bind('t', ['Cmd', 'Shift']).alert('Hello'); // as above
+z.bind('t', ['Cmd', 'Shift']).alert(function(){
+  return { message: 'Hello World', duration: 3 };
+}); // as above
+</code></pre>
+
+<p><strong>log</strong><br>
+Log a string.</p>
+
+<pre lang="node"><code>z.bind('t', ['Cmd', 'Shift']).log({message: 'Log'});
+z.bind('t', ['Cmd', 'Shift']).log('Hello'); // as above
+z.bind('t', ['Cmd', 'Shift']).alert(function(){
+  return 'Log';
+}); // as above
+</code></pre>
+
+<p><strong>chooseFrom</strong><br>
+Choose a list of items from a dinamically populated popup.</p>
+
+<pre lang="node"><code>z.bind('t', ['Cmd', 'Shift']).chooseFrom({
+  list: ['Banana', 'Pineapple', 'Orange'],
+  title: 'Fruits',
+  lines_tall: 10,
+  chars_wide: 30
+}).then(function(selected){
+  console.log(selected); // index of the array
+});
+</code></pre>
+
+<h2>
 <a name="tests" class="anchor" href="#tests"><span class="octicon octicon-link"></span></a>Tests</h2>
 
 <p>Tests are written in <a href="http://visionmedia.github.io/mocha/">Mocha</a>. Simply run
