@@ -9,13 +9,12 @@ var Zephyros = require('zephyros');
 
 var z = new Zephyros();
 
-z.bind('t', ['Cmd', 'Shift']).getClipboardContents().then(function(clipboard){
+z.bind('t', ['Cmd', 'Shift']).clipboardContents().then(function(clipboard){
   console.log("clipboard: ", clipboard);
 });
 ```
 
 ## API
-About promises.
 
 ### Starting a chain
 There are three types of methods that can initiate a new chain:
@@ -34,6 +33,7 @@ z.bind('t', ['Cmd', 'Shift']).then(function(){
 **listen**  
 `listen( event<String> )`  
 Listen to a particular event and fire the chain every time this event occurs.
+A comprehensive list of events is available [here](https://github.com/sdegutis/zephyros/blob/master/Docs/Protocol.md)
 
 ```node
 z.listen('window_created').then(function(){

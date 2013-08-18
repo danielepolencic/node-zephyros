@@ -1,51 +1,46 @@
-require('when/monitor/console');
-
 var Zephyros = require('./../src/zephyros');
 
-var z = new Zephyros({
-  port: 1235,
-  host: 'localhost'
-});
+var z = new Zephyros();
 
-z.bind('t', ['Cmd', 'Shift']).thenGetClipboardContents().then(function(clip){
+z.bind('t', ['Cmd', 'Shift']).clipboardContents().then(function(clip){
   console.log("clip: ", clip);
 });
 
-z.bind('r', ['Cmd', 'Shift']).thenGetFocusedWindow().then(function(window){
+z.bind('r', ['Cmd', 'Shift']).windowFocused().then(function(window){
   console.log("window: ", window);
 });
 
 z.bind('right', ['Cmd', 'Alt', 'Ctrl'])
-.thenGetFocusedWindow()
-.thenGetWindowFrame()
-.thenSetWindowFrame(function(window){
+.windowFocused()
+.getWindowFrame()
+.setWindowFrame(function(window){
   var grid = toGridCoordinates( window.frame );
   grid.w += 1;
   return { id: window.id , frame: toFramePixels( grid ) };
 });
 
 z.bind('left', ['Cmd', 'Alt', 'Ctrl'])
-.thenGetFocusedWindow()
-.thenGetWindowFrame()
-.thenSetWindowFrame(function(window){
+.windowFocused()
+.getWindowFrame()
+.setWindowFrame(function(window){
   var grid = toGridCoordinates( window.frame );
   grid.w -= 1;
   return { id: window.id , frame: toFramePixels( grid ) };
 });
 
 z.bind('down', ['Cmd', 'Alt', 'Ctrl'])
-.thenGetFocusedWindow()
-.thenGetWindowFrame()
-.thenSetWindowFrame(function(window){
+.windowFocused()
+.getWindowFrame()
+.setWindowFrame(function(window){
   var grid = toGridCoordinates( window.frame );
   grid.h += 1;
   return { id: window.id , frame: toFramePixels( grid ) };
 });
 
 z.bind('up', ['Cmd', 'Alt', 'Ctrl'])
-.thenGetFocusedWindow()
-.thenGetWindowFrame()
-.thenSetWindowFrame(function(window){
+.windowFocused()
+.getWindowFrame()
+.setWindowFrame(function(window){
   var grid = toGridCoordinates( window.frame );
   grid.h -= 1;
   return { id: window.id , frame: toFramePixels( grid ) };
