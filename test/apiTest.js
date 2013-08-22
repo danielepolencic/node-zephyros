@@ -209,6 +209,19 @@ describe('Api', function(){
         });
       });
 
+      ['north', 'south', 'east', 'west'].forEach(function(direction){
+        it('should get the all the windows from the ' + direction, function(done){
+          client.replyWith([1, 99]);
+          api = new Api( client );
+          api.then(function(){ return {id: 2}; })
+          ['windowsTo' + (direction.charAt(0).toUpperCase() + direction.slice(1))]()
+          .then(function(windows){
+            assert.equal(windows.length, 2);
+            assert.equal(windows[1].id, 99);
+          }).force().then(done, done);
+        });
+      });
+
     });
 
     describe('screen', function(){
