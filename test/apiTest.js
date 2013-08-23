@@ -305,6 +305,42 @@ describe('Api', function(){
         }).force().then(done, done);
       });
 
+      it('should get the title of the current app', function(done){
+        api = new Api( client.replyWith('my title') );
+        api
+        .then(function(){ return {id: 1}; })
+        .appTitle()
+        .then(function(app){
+          assert.equal(app.id, 1);
+          assert.equal(app.title, 'my title');
+        }).force().then(done, done);
+      });
+
+      it('should say if the app is hidden or not', function(done){
+        api = new Api( client.replyWith(false) );
+        api
+        .then(function(){ return {id: 3}; })
+        .appIsHidden()
+        .then(function(app){
+          assert.equal(app.id, 3);
+          assert.equal(app.isHidden, false);
+        }).force().then(done, done);
+      });
+
+      ['show', 'hide', 'kill', 'kill9'].forEach(function(action){
+        it('should '+ action +' the app', function(done){
+          client.replyWith(null).interceptMessage(function(id, command){
+            assert.equal(command, action);
+            assert.equal(id, 5);
+          });
+          api = new Api( client );
+          api
+          .then(function(){ return {id: 5}; })
+          ['app' + (action.charAt(0).toUpperCase() + action.slice(1))]()
+          .force().then(done, done);
+        });
+      });
+
     });
 
     describe('utils', function(){
