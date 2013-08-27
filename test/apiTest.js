@@ -79,9 +79,18 @@ describe('Api', function(){
       }
 
       this.once = function(){
+        var args = [].slice.call(arguments);
+        args.unshift(1);
+        return this.listen.apply(this, args);
+      };
+
+      this.listen = function(times){
         var deferred = when.defer();
+        for(var i = 0, len = times - 1; i < len; ++i){
+          deferred.notify.apply(null, stack.shift());
+        }
         deferred.resolve.apply( null, stack.shift() );
-        if (beforeSendCallback) beforeSendCallback.apply(null, arguments);
+        if (beforeSendCallback) beforeSendCallback.apply(null, [].slice.call(arguments, 1));
         return deferred.promise;
       };
 
@@ -398,7 +407,7 @@ describe('Api', function(){
       });
 
       it('should choose from a list', function(done){
-        client.replyWith([0, 1]);
+        client.replyWith(1).replyWith(9);
         api = new Api( client );
         api
         .chooseFrom(function(){
@@ -410,7 +419,7 @@ describe('Api', function(){
           };
         })
         .then(function(index_chosen){
-          assert.equal(index_chosen, 1);
+          assert.equal(index_chosen, 9);
         })
         .force().then(done, done);
       });
