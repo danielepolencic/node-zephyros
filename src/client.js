@@ -45,29 +45,26 @@ Client.prototype.parsePacket = function(packet){
 
 Client.prototype.once = function(){
   var args = [].slice.call(arguments);
-  var id = uuid.v4();
-
-  var deferred = when.defer();
-  this.queue[id] = function(response){
-    delete this.queue[id];
-    deferred.resolve(response);
-  };
-
-  args.unshift(id);
-  var message = JSON.stringify(args);
-  this.client.write(message.length + '\n' + message);
-
-  return deferred.promise;
+  args.unshift(1);
+  return this.listen.apply(this, args);
 };
 
-Client.prototype.listen = function(){
-  var args = [].slice.call(arguments);
+Client.prototype.listen = function(times){
+  var args = [].slice.call(arguments, 1);
   var id = uuid.v4();
 
   var deferred = when.defer();
-  this.queue[id] = function(response){
-    deferred.notify(response);
-  };
+  this.queue[id] = function(times){
+    return function(response){
+      if(times === 1){
+        delete this.queue[id];
+        deferred.resolve(response)
+      } else {
+        deferred.notify(response);
+      }
+      times -= 1;
+    };
+  }(times);
 
   args.unshift(id);
   var message = JSON.stringify(args);
