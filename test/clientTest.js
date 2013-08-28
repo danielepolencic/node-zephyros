@@ -36,13 +36,27 @@ describe('Client', function(){
     });
     var i = 0;
     mockServer.replyWith(['-1', 'null', 'null']);
-    client.listen(2, 'another_command').then(undefined, undefined, function(response){
+    client.listen(0, 2, 'another_command').then(undefined, undefined, function(response){
       i += 1;
       if( i > 1 ){
         assert.equal(i, 2);
         done();
       }
     });
+  });
+
+  it('should listen for 3 events and then unbind', function(done){
+    var client = new Client({
+      port: 8124,
+      host: 'localhost'
+    });
+    var i = 0;
+    mockServer.replyWith(['-1', 'null', 'null', 'null', 'null']);
+    client.listen(3, 0, 'random').then(function(){
+      assert.equal(i, 2);
+    }, undefined, function(response){
+      i += 1;
+    }).then(done, done);
   });
 
 });

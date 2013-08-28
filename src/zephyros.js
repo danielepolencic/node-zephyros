@@ -15,7 +15,7 @@ exports = module.exports = Zephyros;
 
 Zephyros.prototype.bind = function( key, modifier ){
   var api = new Api(this.client);
-  this.client.listen(0, 'bind', key, modifier).then(undefined, undefined, api.force.bind(api));
+  this.client.listen(0, 0, 'bind', key, modifier).then(undefined, undefined, api.force.bind(api));
   return api;
 };
 
@@ -27,7 +27,7 @@ Zephyros.prototype.api = function(){
 
 Zephyros.prototype.listen = function( event ){
   var api = new Api(this.client);
-  this.client.listen(0, 'listen', event)
+  this.client.listen(0, 0, 'listen', event)
   .then(undefined, undefined, function(window_id){ api.force.call(api, { id: window_id }); })
   return api;
 };
