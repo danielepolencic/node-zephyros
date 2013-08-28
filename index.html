@@ -178,6 +178,17 @@ Focus the window identified by <code>id</code> to the {right, left, up, down}.</
 .windowFocusUp();
 </code></pre>
 
+<p><strong>windowsTo{north, south, east, west}</strong><br>
+Return an array of window objects for windows located on the {north, south,
+east, west}.</p>
+
+<pre lang="node"><code>z.bind('t', ['Cmd', 'Shift'])
+.windowsToNorth()
+.then(function(windows){
+  windows.forEach(console.log);
+});
+</code></pre>
+
 <h3>
 <a name="screen" class="anchor" href="#screen"><span class="octicon octicon-link"></span></a>Screen</h3>
 
@@ -237,7 +248,7 @@ Return an array containing a screen object for all the screens available.</p>
 <h3>
 <a name="app" class="anchor" href="#app"><span class="octicon octicon-link"></span></a>App</h3>
 
-<p><strong>getAppFromWindow</strong><br>
+<p><strong>appFromWindow</strong><br>
 Get the app object from the window identified by <code>id</code>.</p>
 
 <pre lang="node"><code>z.bind('t', ['Cmd', 'Shift'])
@@ -256,6 +267,69 @@ Return an array containing an app object for all the apps available.</p>
 .then(function(screens){
   screens.forEach(console.log);
 });
+</code></pre>
+
+<p><strong>appTitle</strong><br>
+Return the app object with the <code>id</code> of the app and the <code>title</code>.</p>
+
+<pre lang="node"><code>z.bind('t', ['Cmd', 'Shift'])
+.windowFocused()
+.appFromWindow()
+.appTitle()
+.then(function(app){
+  console.log(app); // {id: 1, title: 'Zephyros'}
+});
+</code></pre>
+
+<p><strong>appIsHidden</strong><br>
+Return the app object with the <code>id</code> of the app and the boolean <code>isHidden</code> set to
+false if the app is not hidden.</p>
+
+<pre lang="node"><code>z.bind('t', ['Cmd', 'Shift'])
+.windowFocused()
+.appFromWindow()
+.appIsHidden()
+.then(function(app){
+  console.log(app); // {id: 1, isHidden: false}
+});
+</code></pre>
+
+<p><strong>appShow</strong><br>
+Show the app identified by <code>id</code>.</p>
+
+<pre lang="node"><code>z.bind('t', ['Cmd', 'Shift'])
+.windowFocused()
+.appFromWindow()
+.appHide()
+.appShow()
+</code></pre>
+
+<p><strong>appHide</strong><br>
+Hide the app identified by <code>id</code>.</p>
+
+<pre lang="node"><code>z.bind('t', ['Cmd', 'Shift'])
+.windowFocused()
+.appFromWindow()
+.appHide()
+.appShow()
+</code></pre>
+
+<p><strong>appKill</strong><br>
+Kill the app identified by <code>id</code>.</p>
+
+<pre lang="node"><code>z.bind('t', ['Cmd', 'Shift'])
+.windowFocused()
+.appFromWindow()
+.appKill()
+</code></pre>
+
+<p><strong>appKill9</strong><br>
+Kill9 the app identified by <code>id</code>.</p>
+
+<pre lang="node"><code>z.bind('t', ['Cmd', 'Shift'])
+.windowFocused()
+.appFromWindow()
+.appKill9()
 </code></pre>
 
 <h3>
