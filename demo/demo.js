@@ -1,16 +1,88 @@
-var Zephyros = require('./../src/zephyros');
+var request = require('request'),
+    Zephyros = require('./../src/zephyros'),
+    fs = require('fs');
 
-var z = new Zephyros();
+var z = new Zephyros(),
+    appdb = fs.createWriteStream('./app.db', {flags: 'a'});
 
-z.bind('t', ['Cmd', 'Shift']).clipboardContents().then(function(clip){
-  console.log("clip: ", clip);
+z.bind('m', ['Cmd', 'Ctrl'])
+.windowFocused()
+.maximize();
+
+var main_screen = {};
+z.api().mainScreen().frameWithoutDockOrMenu().then(function(screen){ main_screen = screen; });
+
+z.listen('focus_changed').appFromWindow().appTitle().then(function(app){
+  appdb.write(app.title + ',' + (new Date()).valueOf() + '\n');
 });
 
-z.bind('r', ['Cmd', 'Shift']).windowFocused().then(function(window){
-  console.log("window: ", window);
+z.bind('right', ['Cmd', 'Ctrl', 'Alt']).windowFocused().getWindowFrame().setWindowFrame(function(window){
+  window.frame.x = window.frame.w = main_screen.frame.w / 2;
+  window.frame.h = main_screen.frame.h;
+  window.frame.y = main_screen.frame.y
+  return window;
 });
 
-z.bind('right', ['Cmd', 'Alt', 'Ctrl'])
+z.bind('left', ['Cmd', 'Ctrl', 'Alt']).windowFocused().getWindowFrame().setWindowFrame(function(window){
+  window.frame.x = main_screen.frame.x;
+  window.frame.w = main_screen.frame.w / 2;
+  window.frame.h = main_screen.frame.h;
+  window.frame.y = main_screen.frame.y
+  return window;
+});
+
+z.bind('up', ['Cmd', 'Ctrl', 'Alt']).windowFocused().getWindowFrame().setWindowFrame(function(window){
+  window.frame.x = main_screen.frame.x;
+  window.frame.y = main_screen.frame.y
+  window.frame.w = main_screen.frame.w;
+  window.frame.h = main_screen.frame.h / 2;
+  return window;
+});
+
+z.bind('down', ['Cmd', 'Ctrl', 'Alt']).windowFocused().getWindowFrame().setWindowFrame(function(window){
+  window.frame.x = main_screen.frame.x;
+  window.frame.y = window.frame.h = main_screen.frame.h / 2;
+  window.frame.w = main_screen.frame.w;
+  return window;
+});
+
+z.bind('h', ['Cmd', 'Ctrl'])
+.windowFocused()
+.getWindowFrame()
+.setWindowFrame(function(window){
+  var grid = toGridCoordinates( window.frame );
+  grid.x -= 1;
+  return { id: window.id , frame: toFramePixels( grid ) };
+});
+
+z.bind('l', ['Cmd', 'Ctrl'])
+.windowFocused()
+.getWindowFrame()
+.setWindowFrame(function(window){
+  var grid = toGridCoordinates( window.frame );
+  grid.x += 1;
+  return { id: window.id , frame: toFramePixels( grid ) };
+});
+
+z.bind('j', ['Cmd', 'Ctrl'])
+.windowFocused()
+.getWindowFrame()
+.setWindowFrame(function(window){
+  var grid = toGridCoordinates( window.frame );
+  grid.y += 1;
+  return { id: window.id , frame: toFramePixels( grid ) };
+});
+
+z.bind('k', ['Cmd', 'Ctrl'])
+.windowFocused()
+.getWindowFrame()
+.setWindowFrame(function(window){
+  var grid = toGridCoordinates( window.frame );
+  grid.y -= 1;
+  return { id: window.id , frame: toFramePixels( grid ) };
+});
+
+z.bind('=', ['Cmd', 'Ctrl'])
 .windowFocused()
 .getWindowFrame()
 .setWindowFrame(function(window){
@@ -19,7 +91,7 @@ z.bind('right', ['Cmd', 'Alt', 'Ctrl'])
   return { id: window.id , frame: toFramePixels( grid ) };
 });
 
-z.bind('left', ['Cmd', 'Alt', 'Ctrl'])
+z.bind('-', ['Cmd', 'Ctrl'])
 .windowFocused()
 .getWindowFrame()
 .setWindowFrame(function(window){
@@ -28,7 +100,7 @@ z.bind('left', ['Cmd', 'Alt', 'Ctrl'])
   return { id: window.id , frame: toFramePixels( grid ) };
 });
 
-z.bind('down', ['Cmd', 'Alt', 'Ctrl'])
+z.bind(']', ['Cmd', 'Ctrl'])
 .windowFocused()
 .getWindowFrame()
 .setWindowFrame(function(window){
@@ -37,7 +109,7 @@ z.bind('down', ['Cmd', 'Alt', 'Ctrl'])
   return { id: window.id , frame: toFramePixels( grid ) };
 });
 
-z.bind('up', ['Cmd', 'Alt', 'Ctrl'])
+z.bind('[', ['Cmd', 'Ctrl'])
 .windowFocused()
 .getWindowFrame()
 .setWindowFrame(function(window){
@@ -45,7 +117,6 @@ z.bind('up', ['Cmd', 'Alt', 'Ctrl'])
   grid.h -= 1;
   return { id: window.id , frame: toFramePixels( grid ) };
 });
-
 
 function toGridCoordinates( frame ){
   var column_size = 240;
@@ -68,3 +139,18 @@ function toFramePixels( grid ) {
     h: grid.h * row_size
   };
 }
+
+var cities = ['London', 'Manchester', 'Bath', 'Leeds', 'Liverpool'];
+z.bind('c', ['Cmd', 'Alt', 'Ctrl']).chooseFrom({
+  list: cities,
+  title: 'Cities',
+  lines_tall: 5,
+  chars_wide: 30
+}).then(function(selected){
+  request('http://api.openweathermap.org/data/2.5/weather?q=' + cities[selected] + ',uk', function(error, response, body){
+    if (!error && response.statusCode == 200) {
+      body = JSON.parse(body);
+      z.api().alert(body.weather[0].description + ' in ' + cities[selected]);
+    }
+  });
+});
