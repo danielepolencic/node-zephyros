@@ -155,6 +155,18 @@ z.bind('t', ['Cmd', 'Shift'])
 .windowFocusUp();
 ```
 
+**windowsTo{north, south, east, west}**  
+Return an array of window objects for windows located on the {north, south,
+east, west}.
+
+```node
+z.bind('t', ['Cmd', 'Shift'])
+.windowsToNorth()
+.then(function(windows){
+  windows.forEach(console.log);
+});
+```
+
 ### Screen
 **screenFromWindow**  
 Get the screen object from the window identified by `id`.
@@ -215,7 +227,7 @@ z.bind('t', ['Cmd', 'Shift'])
 ```
 
 ### App
-**getAppFromWindow**  
+**appFromWindow**  
 Get the app object from the window identified by `id`.
 
 ```node
@@ -236,6 +248,75 @@ z.bind('t', ['Cmd', 'Shift'])
 .then(function(screens){
   screens.forEach(console.log);
 });
+```
+
+**appTitle**  
+Return the app object with the `id` of the app and the `title`.
+
+```node
+z.bind('t', ['Cmd', 'Shift'])
+.windowFocused()
+.appFromWindow()
+.appTitle()
+.then(function(app){
+  console.log(app); // {id: 1, title: 'Zephyros'}
+});
+```
+
+**appIsHidden**  
+Return the app object with the `id` of the app and the boolean `isHidden` set to
+false if the app is not hidden.
+
+```node
+z.bind('t', ['Cmd', 'Shift'])
+.windowFocused()
+.appFromWindow()
+.appIsHidden()
+.then(function(app){
+  console.log(app); // {id: 1, isHidden: false}
+});
+```
+
+**appShow**  
+Show the app identified by `id`.
+
+```node
+z.bind('t', ['Cmd', 'Shift'])
+.windowFocused()
+.appFromWindow()
+.appHide()
+.appShow()
+```
+
+**appHide**  
+Hide the app identified by `id`.
+
+```node
+z.bind('t', ['Cmd', 'Shift'])
+.windowFocused()
+.appFromWindow()
+.appHide()
+.appShow()
+```
+
+**appKill**  
+Kill the app identified by `id`.
+
+```node
+z.bind('t', ['Cmd', 'Shift'])
+.windowFocused()
+.appFromWindow()
+.appKill()
+```
+
+**appKill9**  
+Kill9 the app identified by `id`.
+
+```node
+z.bind('t', ['Cmd', 'Shift'])
+.windowFocused()
+.appFromWindow()
+.appKill9()
 ```
 
 ### Util

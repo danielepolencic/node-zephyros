@@ -79,9 +79,18 @@ describe('Api', function(){
       }
 
       this.once = function(){
+        var args = [].slice.call(arguments);
+        args.unshift(1);
+        return this.listen.apply(this, args);
+      };
+
+      this.listen = function(times){
         var deferred = when.defer();
+        for(var i = 0, len = times - 1; i < len; ++i){
+          deferred.notify.apply(null, stack.shift());
+        }
         deferred.resolve.apply( null, stack.shift() );
-        if (beforeSendCallback) beforeSendCallback.apply(null, arguments);
+        if (beforeSendCallback) beforeSendCallback.apply(null, [].slice.call(arguments, 1));
         return deferred.promise;
       };
 
@@ -209,6 +218,19 @@ describe('Api', function(){
         });
       });
 
+      ['north', 'south', 'east', 'west'].forEach(function(direction){
+        it('should get the all the windows from the ' + direction, function(done){
+          client.replyWith([1, 99]);
+          api = new Api( client );
+          api.then(function(){ return {id: 2}; })
+          ['windowsTo' + (direction.charAt(0).toUpperCase() + direction.slice(1))]()
+          .then(function(windows){
+            assert.equal(windows.length, 2);
+            assert.equal(windows[1].id, 99);
+          }).force().then(done, done);
+        });
+      });
+
     });
 
     describe('screen', function(){
@@ -292,6 +314,42 @@ describe('Api', function(){
         }).force().then(done, done);
       });
 
+      it('should get the title of the current app', function(done){
+        api = new Api( client.replyWith('my title') );
+        api
+        .then(function(){ return {id: 1}; })
+        .appTitle()
+        .then(function(app){
+          assert.equal(app.id, 1);
+          assert.equal(app.title, 'my title');
+        }).force().then(done, done);
+      });
+
+      it('should say if the app is hidden or not', function(done){
+        api = new Api( client.replyWith(false) );
+        api
+        .then(function(){ return {id: 3}; })
+        .appIsHidden()
+        .then(function(app){
+          assert.equal(app.id, 3);
+          assert.equal(app.isHidden, false);
+        }).force().then(done, done);
+      });
+
+      ['show', 'hide', 'kill', 'kill9'].forEach(function(action){
+        it('should '+ action +' the app', function(done){
+          client.replyWith(null).interceptMessage(function(id, command){
+            assert.equal(command, action);
+            assert.equal(id, 5);
+          });
+          api = new Api( client );
+          api
+          .then(function(){ return {id: 5}; })
+          ['app' + (action.charAt(0).toUpperCase() + action.slice(1))]()
+          .force().then(done, done);
+        });
+      });
+
     });
 
     describe('utils', function(){
@@ -349,7 +407,7 @@ describe('Api', function(){
       });
 
       it('should choose from a list', function(done){
-        client.replyWith([0, 1]);
+        client.replyWith(1).replyWith(9);
         api = new Api( client );
         api
         .chooseFrom(function(){
@@ -361,7 +419,7 @@ describe('Api', function(){
           };
         })
         .then(function(index_chosen){
-          assert.equal(index_chosen, 1);
+          assert.equal(index_chosen, 9);
         })
         .force().then(done, done);
       });

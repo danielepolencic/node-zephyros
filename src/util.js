@@ -33,7 +33,7 @@ util.alert = function( func ){
 
   this.stack.push(function(alert){
     if ( _.isUndefined(alert) || !_.isString(alert.message) ) { return this; }
-    return this.client.once(0, 'alert', alert.message, alert.duration || 2000);
+    return this.client.once(0, 'alert', alert.message, alert.duration || 2);
   }.bind(this));
 
   return this;
@@ -69,8 +69,8 @@ util.chooseFrom = function( func ){
       list: []
     };
     _.extend( popup, chooseFrom );
-    return this.client.once(0, 'choose_from', popup.list, popup.title, popup.lines_tall, popup.chars_wide).then(function(message){
-      return message[1];
+    return this.client.listen(2, 0, 'choose_from', popup.list, popup.title, popup.lines_tall, popup.chars_wide).then(function(message){
+      return message;
     })
   }.bind(this));
 

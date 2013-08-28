@@ -115,3 +115,17 @@ window.unminimize = function(){
     return this;
   };
 });
+
+['north', 'south', 'east', 'west'].forEach(function(direction){
+  window['windowsTo' + _.capitalize(direction)] = function(){
+    this.stack.push(function(window){
+      if ( _.isUndefined(window) || !_.isNumber(window.id) ) { return this; }
+
+      return this.client.once(window.id, 'windows_to_' + direction).then(function(windows){
+        return windows.map(function(window){ return {id: window} });
+      });
+    }.bind(this));
+
+    return this;
+  }
+});
