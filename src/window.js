@@ -1,31 +1,30 @@
-var when = require('when'),
-    _ = require('lodash'),
+var _ = require('lodash'),
     window = {};
 
 exports = module.exports = window;
 
 _.mixin({
-  'capitalize': function(string) {
+  'capitalize': function (string) {
     return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
   }
 });
 
-window.windowFocused = function(){
+window.windowFocused = function () {
 
-  this.stack.push(function(){
+  this.stack.push(function () {
     return this.client.once(0, 'focused_window')
-    .then(function(window_id){ return { id: window_id }; });
+    .then(function (window_id) { return { id: window_id }; });
   }.bind(this));
 
   return this;
 };
 
-window.getWindowFrame = function(){
+window.getWindowFrame = function () {
 
-  this.stack.push(function(window){
-    if ( _.isUndefined(window) || !_.isNumber(window.id) ) { return this; }
+  this.stack.push(function (window) {
+    if (_.isUndefined(window) || !_.isNumber(window.id)) { return this; }
 
-    return this.client.once(window.id, 'frame').then(function(frame){
+    return this.client.once(window.id, 'frame').then(function (frame) {
       return { id: window.id, frame: frame };
     });
   }.bind(this));
@@ -33,46 +32,46 @@ window.getWindowFrame = function(){
   return this;
 };
 
-window.setWindowFrame = function( func ){
-  if(  !_.isFunction(func) ){ return this; }
+window.setWindowFrame = function (func) {
+  if (!_.isFunction(func)) { return this; }
 
   this.stack.push(func);
-  this.stack.push(function(window){
-    if ( _.isUndefined(window) || !_.isNumber(window.id) ) { return this; }
+  this.stack.push(function (window) {
+    if (_.isUndefined(window) || !_.isNumber(window.id)) { return this; }
     return this.client.once(window.id, 'set_frame', window.frame);
   }.bind(this));
 
   return this;
 };
 
-window.windowsVisible = function(){
+window.windowsVisible = function () {
 
-  this.stack.push(function(){
-    return this.client.once(0, 'visible_windows').then(function(windows_ids){
-      return windows_ids.map(function(id){ return {id: id}; });
+  this.stack.push(function () {
+    return this.client.once(0, 'visible_windows').then(function (windows_ids) {
+      return windows_ids.map(function (id) { return {id: id}; });
     });
   }.bind(this));
 
   return this;
 };
 
-window.windows = function(){
+window.windows = function () {
 
-  this.stack.push(function(){
-    return this.client.once(0, 'all_windows').then(function(windows_ids){
-      return windows_ids.map(function(id){ return {id: id}; });
+  this.stack.push(function () {
+    return this.client.once(0, 'all_windows').then(function (windows_ids) {
+      return windows_ids.map(function (id) { return {id: id}; });
     });
   }.bind(this));
 
   return this;
 };
 
-window.windowTitle = function(){
+window.windowTitle = function () {
 
-  this.stack.push(function(window){
-    if ( _.isUndefined(window) || !_.isNumber(window.id) ) { return this; }
+  this.stack.push(function (window) {
+    if (_.isUndefined(window) || !_.isNumber(window.id)) { return this; }
 
-    return this.client.once(window.id, 'title').then(function(title){
+    return this.client.once(window.id, 'title').then(function (title) {
       return { id: window.id, title: title };
     });
   }.bind(this));
@@ -80,11 +79,11 @@ window.windowTitle = function(){
   return this;
 };
 
-['maximize', 'minimize'].forEach(function(action){
-  window[action] = function(){
+['maximize', 'minimize'].forEach(function (action) {
+  window[action] = function () {
 
-    this.stack.push(function(window){
-      if ( _.isUndefined(window) || !_.isNumber(window.id) ) { return this; }
+    this.stack.push(function (window) {
+      if (_.isUndefined(window) || !_.isNumber(window.id)) { return this; }
 
       return this.client.once(window.id, action);
     }.bind(this));
@@ -93,10 +92,10 @@ window.windowTitle = function(){
   };
 });
 
-window.unminimize = function(){
+window.unminimize = function () {
 
-  this.stack.push(function(window){
-    if ( _.isUndefined(window) || !_.isNumber(window.id) ) { return this; }
+  this.stack.push(function (window) {
+    if (_.isUndefined(window) || !_.isNumber(window.id)) { return this; }
 
     return this.client.once(window.id, 'un_minimize');
   }.bind(this));
@@ -104,10 +103,10 @@ window.unminimize = function(){
   return this;
 };
 
-['left', 'right', 'up', 'down'].forEach(function(direction){
-  window['windowFocus' + _.capitalize(direction)] = function(){
-    this.stack.push(function(window){
-      if ( _.isUndefined(window) || !_.isNumber(window.id) ) { return this; }
+['left', 'right', 'up', 'down'].forEach(function (direction) {
+  window['windowFocus' + _.capitalize(direction)] = function () {
+    this.stack.push(function (window) {
+      if (_.isUndefined(window) || !_.isNumber(window.id)) { return this; }
 
       return this.client.once(window.id, 'focus_window_' + direction);
     }.bind(this));
@@ -116,16 +115,16 @@ window.unminimize = function(){
   };
 });
 
-['north', 'south', 'east', 'west'].forEach(function(direction){
-  window['windowsTo' + _.capitalize(direction)] = function(){
-    this.stack.push(function(window){
-      if ( _.isUndefined(window) || !_.isNumber(window.id) ) { return this; }
+['north', 'south', 'east', 'west'].forEach(function (direction) {
+  window['windowsTo' + _.capitalize(direction)] = function () {
+    this.stack.push(function (window) {
+      if (_.isUndefined(window) || !_.isNumber(window.id)) { return this; }
 
-      return this.client.once(window.id, 'windows_to_' + direction).then(function(windows){
-        return windows.map(function(window){ return {id: window} });
+      return this.client.once(window.id, 'windows_to_' + direction).then(function (windows) {
+        return windows.map(function (window) { return {id: window}; });
       });
     }.bind(this));
 
     return this;
-  }
+  };
 });

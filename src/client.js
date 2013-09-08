@@ -5,7 +5,7 @@ var net = require('net'),
 
 exports = module.exports = Client;
 
-function Client(options){
+function Client(options) {
   this.queue = {};
   this.client = net.connect(options);
   this.client.on('data', this.onData.bind(this));
@@ -13,29 +13,29 @@ function Client(options){
   this.once = this.once.bind(this);
 }
 
-Client.prototype.onData = function(data){
+Client.prototype.onData = function (data) {
   var packets;
   packets = data.toString().split(/\s*\d+\n(\[.*\])\s*/gm);
   packets
   .map(this.parsePacket, this)
-  .forEach(function(packet){
-    if( packet && packet.id in this.queue ){
+  .forEach(function (packet) {
+    if (packet && packet.id in this.queue) {
       var callback = this.queue[packet.id];
-      if(callback) callback.call(this, packet.response);
-    };
+      if (callback) callback.call(this, packet.response);
+    }
   }, this);
 };
 
-Client.prototype.parsePacket = function(packet){
+Client.prototype.parsePacket = function (packet) {
   var message = {}, id, response;
-  if( _.isEmpty(packet) ) { return; }
+  if (_.isEmpty(packet)) { return; }
   try {
     message = JSON.parse(packet);
-    if(!_.isArray(message)) { return; }
+    if (!_.isArray(message)) { return; }
     id = message.shift();
     response = message.shift();
 
-    if( ~~response < 0 ) { return; }
+    if (~~response < 0) { return; }
 
     return { id: id, response: response };
   } catch (e) {
@@ -43,22 +43,22 @@ Client.prototype.parsePacket = function(packet){
   }
 };
 
-Client.prototype.once = function(){
+Client.prototype.once = function () {
   var args = [].slice.call(arguments);
   args.unshift(1);
   return this.listen.apply(this, args);
 };
 
-Client.prototype.listen = function(times){
+Client.prototype.listen = function (times) {
   var args = [].slice.call(arguments, 1);
   var id = uuid.v4();
 
   var deferred = when.defer();
-  this.queue[id] = function(times){
-    return function(response){
-      if(times === 1){
+  this.queue[id] = function (times) {
+    return function (response) {
+      if (times === 1) {
         delete this.queue[id];
-        deferred.resolve(response)
+        deferred.resolve(response);
       } else {
         deferred.notify(response);
       }

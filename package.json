@@ -5,6 +5,24 @@
   "scripts": {
     "test": "mocha test"
   },
+  "jshintConfig": {
+    "boss":      true,
+    "node":      true,
+    "strict":    false,
+    "white":     true,
+    "smarttabs": true,
+    "newcap":    false,
+    "undef":     true,
+    "unused":    true,
+    "onecase":   true,
+    "indent":    2,
+    "globals": {
+      "it": false,
+      "describe": false,
+      "beforeEach": false,
+      "afterEach": false
+    }
+  },
   "dependencies": {
     "when" : "2.3.0",
     "node-uuid" : "1.4.0",
