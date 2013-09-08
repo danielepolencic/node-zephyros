@@ -3,12 +3,7 @@ var Api = require('./api'),
     _ = require('lodash');
 
 function Zephyros(options){
-  var default_options = {
-    port: 1235,
-    host: 'localhost'
-  };
-  _.extend(default_options, options);
-  this.client = new Client(default_options);
+  this.client = new Client(options || {path: '/tmp/zephyros.sock'});
 }
 
 exports = module.exports = Zephyros;
