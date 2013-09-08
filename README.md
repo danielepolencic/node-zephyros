@@ -45,20 +45,20 @@ z.listen('window_created').then(function(){
 
 **api**  
 `api()`  
-Manually trigger the chain.
+Manually trigger a chain.
 
 ```node
 z.api().then(function(){
-  console.log('Fired only once.');
+  console.log('Fired immediately only once.');
 });
 ```
 
-When a new chain is initialised, ypu can use the API to interact with Windows,
-Apps, Screens and Ohter stuff.
+When a new chain is initialised, you can use the API to interact with
+[Windows](#window), [Apps](#app), [Screens](#screen) or [Utils](#util).
 
 ### Window
 **windowFocused**  
-Return a window object with the id of the focused window.
+Return a window object with the `id` of the focused window.
 
 ```node
 z.bind('t', ['Cmd', 'Shift']).windowFocused().then(function(window){
@@ -242,7 +242,7 @@ z.bind('t', ['Cmd', 'Shift'])
 ```
 
 **apps**  
-Return an array containing an app object for all the apps available.
+Return an array containing an app object for all the apps running.
 
 ```node
 z.bind('t', ['Cmd', 'Shift'])
