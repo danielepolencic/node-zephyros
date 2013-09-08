@@ -77,21 +77,21 @@ A comprehensive list of events is available <a href="https://github.com/sdegutis
 </code></pre>
 
 <p><strong>api</strong><br><code>api()</code><br>
-Manually trigger a displsable chain of actions.</p>
+Manually trigger a chain.</p>
 
 <pre lang="node"><code>z.api().then(function(){
-  console.log('Fired only once.');
+  console.log('Fired immediately only once.');
 });
 </code></pre>
 
-<p>When a new chain is initialised, ypu can use the API to interact with Windows,
-Apps, Screens and Ohter stuff.</p>
+<p>When a new chain is initialised, you can use the API to interact with
+<a href="#window">Windows</a>, <a href="#app">Apps</a>, <a href="#screen">Screens</a> or <a href="#util">Utils</a>.</p>
 
 <h3>
 <a name="window" class="anchor" href="#window"><span class="octicon octicon-link"></span></a>Window</h3>
 
 <p><strong>windowFocused</strong><br>
-Return a window object with the id of the focused window.</p>
+Return a window object with the <code>id</code> of the focused window.</p>
 
 <pre lang="node"><code>z.bind('t', ['Cmd', 'Shift']).windowFocused().then(function(window){
   console.log(window.id);
@@ -262,7 +262,7 @@ Get the app object from the window identified by <code>id</code>.</p>
 </code></pre>
 
 <p><strong>apps</strong><br>
-Return an array containing an app object for all the apps available.</p>
+Return an array containing an app object for all the apps running.</p>
 
 <pre lang="node"><code>z.bind('t', ['Cmd', 'Shift'])
 .apps()
