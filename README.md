@@ -45,7 +45,7 @@ z.listen('window_created').then(function(){
 
 **api**  
 `api()`  
-Manually trigger a displsable chain of actions.
+Manually trigger the chain.
 
 ```node
 z.api().then(function(){
