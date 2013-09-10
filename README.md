@@ -1,13 +1,13 @@
-# Zephyros [![Build Status](https://travis-ci.org/danielepolencic/zephyros.png)](https://travis-ci.org/danielepolencic/zephryos)
+# node-zephyros [![Build Status](https://travis-ci.org/danielepolencic/zephyros.png)](https://travis-ci.org/danielepolencic/zephryos)
 Node.js adapter for [Zephyros](https://github.com/sdegutis/zephyros) - the OS X window manager for hackers.
 
 ![Zephyros Demo](http://i.imgur.com/bXDlfH0.gif)
 
 ## Usage
-Include `zephiros` in your script and you're ready to go!
+Include `node-zephiros` in your script and you're ready to go!
 
 ```node
-var Zephyros = require('zephyros');
+var Zephyros = require('node-zephyros');
 
 var z = new Zephyros();
 
