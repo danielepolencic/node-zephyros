@@ -1,5 +1,4 @@
-var request = require('request'),
-    Zephyros = require('zephyros');
+var Zephyros = require('node-zephyros');
 
 var z = new Zephyros(),
     appdb = fs.createWriteStream('./app.db', {flags: 'a'});
