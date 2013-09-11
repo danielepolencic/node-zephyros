@@ -17,7 +17,7 @@ MockServer.prototype.replyWith = function (messages) {
   this.stack.push(function (socket) {
 
     return function (data) {
-      var message = JSON.parse(data.toString('utf-8').split('\n')[1]);
+      var message = JSON.parse(data.toString('utf-8').split('\n')[0]);
       var id = message.shift();
       messages.forEach(function (message, index) {
         setTimeout(function () {
