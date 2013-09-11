@@ -1,6 +1,6 @@
 {
   "name": "node-zephyros",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "author": "Daniele Polencic <daniele.polencic@gmail.com>",
   "scripts": {
     "test": "mocha test"
