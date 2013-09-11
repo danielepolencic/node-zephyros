@@ -15,7 +15,7 @@ function Client(options) {
 
 Client.prototype.onData = function (data) {
   var packets;
-  packets = data.toString().split(/\s*\d+\n(\[.*\])\s*/gm);
+  packets = data.toString().split(/\s*\n(\[.*\])\s*/gm);
   packets
   .map(this.parsePacket, this)
   .forEach(function (packet) {
@@ -68,7 +68,7 @@ Client.prototype.listen = function (times) {
 
   args.unshift(id);
   var message = JSON.stringify(args);
-  this.client.write(message.length + '\n' + message);
+  this.client.write(message + '\n');
 
   return deferred.promise;
 };
