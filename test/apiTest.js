@@ -427,6 +427,16 @@ describe('Api', function () {
         .force().then(done, done);
       });
 
+      ['undo', 'redo'].forEach(function(action){
+        it('should ' + action + ' the previous action', function(done){
+          client.replyWith(null).interceptMessage(function (id, command) {
+            assert.equal(command, action);
+          });
+          api = new Api(client);
+          api[action]().force().then(done, done);
+        });
+      });
+
     });
 
   });

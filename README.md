@@ -1,4 +1,4 @@
-# node-zephyros [![Build Status](https://travis-ci.org/danielepolencic/zephyros.png)](https://travis-ci.org/danielepolencic/zephryos)
+# node-zephyros [![Build Status](https://travis-ci.org/danielepolencic/node-zephyros.png)](https://travis-ci.org/danielepolencic/node-zephryos)
 Node.js adapter for [Zephyros](https://github.com/sdegutis/zephyros) - the OS X window manager for hackers.
 
 ![Zephyros Demo](http://i.imgur.com/bXDlfH0.gif)
@@ -381,6 +381,27 @@ z.bind('t', ['Cmd', 'Shift']).chooseFrom({
 }).then(function(selected){
   console.log(selected); // index of the array
 });
+```
+
+**undo**  
+Undo the last action.
+
+```node
+z.bind('t', ['Cmd', 'Shift'])
+.windowFocused()
+.maximise()
+.undo()
+```
+
+**redo**  
+Redo the last action.
+
+```node
+z.bind('t', ['Cmd', 'Shift'])
+.windowFocused()
+.maximise()
+.undo()
+.redo()
 ```
 
 ## Tests

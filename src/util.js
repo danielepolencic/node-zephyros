@@ -75,3 +75,14 @@ util.chooseFrom = function (func) {
 
   return this;
 };
+
+['undo', 'redo'].forEach(function(action){
+  util[action] = function () {
+
+    this.stack.push(function () {
+      return this.client.once(0, action);
+    }.bind(this));
+
+    return this;
+  };
+});
