@@ -4,7 +4,7 @@ Node.js adapter for [Zephyros](https://github.com/sdegutis/zephyros) - the OS X 
 ![Zephyros Demo](http://i.imgur.com/bXDlfH0.gif)
 
 ## Usage
-Include `node-zephiros` in your script and you're ready to go!
+Include `node-zephyros` in your script and you're ready to go!
 
 ```node
 var Zephyros = require('node-zephyros');
