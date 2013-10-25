@@ -1,19 +1,34 @@
-client = null
+wrap = require' ./wrap'
+
+client = wrap 0
 
 Api =
 
   log: (message) ->
-    client.once(0, 'log', message)
+    client 'log', message
 
   alert: (message, duration) ->
-    client.once(0, 'alert', message, duration)
+    client 'alert', message, duration
 
   showBox: (message) ->
-    client.once(0, 'show_box', message)
+    client 'show_box', message
 
   hideBox: ->
-    client.once(0, 'hide_box')
+    client 'hide_box'
 
-module.exports =
-  api: Api
-  init: (_client) -> client = _client
+  relaunch: ->
+    client 'relaunch_config'
+
+  updateSettings: (settings) ->
+    client 'update_settings', settings
+
+  redo: ->
+    client 'redo'
+
+  undo: ->
+    client 'undo'
+
+  clipboard: ->
+    client 'clipboard_contents'
+
+module.exports = Api

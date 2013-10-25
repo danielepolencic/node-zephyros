@@ -1,8 +1,7 @@
-Api = require './api'
-Client = require './client'
-window = require './window'
-screen = require './screen'
-util   = require './util'
+Client  = require './client'
+window  = require './window'
+screen  = require './screen'
+util    = require './util'
 wrapper = require './wrapper'
 
 class Zephyros
@@ -14,8 +13,9 @@ class Zephyros
   bind: (key, modifier) =>
     @client.listen(0, 0, 'bind', key , modifier)
 
+  app:    app
+  util:   util
   window: window
   screen: screen
-  util:   util
 
 module.exports = Zephyros

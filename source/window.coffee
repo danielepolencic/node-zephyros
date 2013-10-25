@@ -1,6 +1,6 @@
+wrap   = require './wrapper'
 Screen = require './screen'
-wrap = require './wrapper'
-Frame = require './frame'
+App    = require './app'
 
 class Window
 
@@ -19,20 +19,30 @@ class Window
       new App(app)
 
   frame: =>
-    @client('frame').then (frame) ->
-      new Frame(frame)
+    @client 'frame'
 
-  setFrame: (frame) =>
-    @client('set_frame', frame)
+  setFrame: (x, y, w, h) =>
+    @client 'set_frame',
+      x: x
+      y: y
+      w: w
+      h: h
 
   size: =>
-    @client('size').then (size) ->
-      new Size(size)
+    @client 'size'
 
   resize: (width, height) =>
-    @client 'set_size',
+    @client 'set_size'
       w: width
       h: height
+
+  position: =>
+    @client 'top_left'
+
+  move: (x, y) =>
+    @client 'set_top_left',
+      x: x
+      y: y
 
   maximize: =>
     @client 'maximize'
@@ -46,23 +56,23 @@ class Window
   focus: =>
     @client 'focus_window'
 
-  focusUp: =>
-    @client 'focus_window_up'
-
-  focusDown: =>
-    @client 'focus_window_down'
-
-  focusLeft: =>
-    @client 'focus_window_left'
-
-  focusRight: =>
-    @client 'focus_window_right'
+  focusTo: (direction) =>
+    @client 'focus_window_' + direction
 
   normal: =>
     @client 'normal_window?'
 
   minimized: =>
     @client 'minimized?'
+
+  windowsTo: (directon) =>
+    @client 'window_to_' + direction
+
+  otherWindows: (options = {}) =>
+    if options.sameScreen
+      @client 'other_windows_on_same_screen'
+    else
+      @client 'other_windows_on_all_screens'
 
 
 client = wrap(0)
