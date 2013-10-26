@@ -32,7 +32,7 @@ class Window
     @client 'size'
 
   resize: (width, height) =>
-    @client 'set_size'
+    @client 'set_size',
       w: width
       h: height
 

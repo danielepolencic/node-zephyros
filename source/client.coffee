@@ -27,6 +27,7 @@ class MasterClient
       id       = message.shift()
       response = message.shift()
 
+      # Ignore negative numbers
       if ~~response < 0 then return
 
       return { id: id,  response: response }

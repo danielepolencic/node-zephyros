@@ -1,4 +1,4 @@
-wrap = require './wrap'
+wrap = require './wrapper'
 
 class Screen
 
