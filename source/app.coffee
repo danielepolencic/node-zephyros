@@ -40,7 +40,7 @@ Api =
 
   _model: App
 
-  running: =>
+  all: =>
     client('running_apps').then (apps) ->
       apps.map (id) -> new App(id)
 

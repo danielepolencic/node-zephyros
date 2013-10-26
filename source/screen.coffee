@@ -6,7 +6,7 @@ class Screen
     @client = wrap @id
 
   frame: (options) =>
-    name = if options.withoutDock
+    name = if options.noDock
       'frame_without_dock_or_menu'
     else
       'frame_including_dock_and_menu'
@@ -32,11 +32,12 @@ Api =
   _model: Screen
 
   main: ->
-    client.once(0, 'main_screen').then (id) ->
+    client('main_screen').then (id) ->
+      console.log 'got screen'
       new Screen(id)
 
   all: ->
-    client.once(0, 'all_screens').then (screens) ->
+    client('all_screens').then (screens) ->
       screens.map (id) -> new Screen(id)
 
 module.exports = Api

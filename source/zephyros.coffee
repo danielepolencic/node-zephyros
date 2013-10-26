@@ -4,6 +4,7 @@ screen  = require './screen'
 util    = require './util'
 wrapper = require './wrapper'
 app     = require './app'
+grid    = require './grid'
 Stack   = require './stack'
 
 class Zephyros
@@ -30,5 +31,6 @@ class Zephyros
   util:   util
   window: window
   screen: screen
+  grid:   grid
 
 module.exports = Zephyros

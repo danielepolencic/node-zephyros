@@ -1,25 +1,32 @@
 wrap   = require './wrapper'
 Screen = require './screen'
 App    = require './app'
+When   = require 'when'
+
+preloading =
+  'title': 'getTitle'
+  'frame': 'getFrame'
 
 class Window
 
   constructor: (@id) ->
     @client = wrap @id
+    @windowsTo = []
 
-  title: =>
-    @client 'title'
+  getTitle: =>
+    @client('title').then (@title) =>
+      @title
 
-  screen: =>
-    @client('screen').then (id) ->
-      new Screen(id)
+  getScreen: =>
+    @client('screen').then (id) =>
+      @screen = new Screen(id)
 
-  app: =>
-    @client('app').then (app) ->
-      new App(app)
+  getApp: =>
+    @client('app').then (app) =>
+      @app = new App(app)
 
-  frame: =>
-    @client 'frame'
+  getFrame: =>
+    @client('frame').then (@frame) => @frame
 
   setFrame: (x, y, w, h) =>
     @client 'set_frame',
@@ -28,18 +35,18 @@ class Window
       w: w
       h: h
 
-  size: =>
-    @client 'size'
+  getSize: =>
+    @client('size').then (@size) => @size
 
-  resize: (width, height) =>
+  setSize: (width, height) =>
     @client 'set_size',
       w: width
       h: height
 
-  position: =>
-    @client 'top_left'
+  getPosition: =>
+    @client('top_left').then (@position) => @position
 
-  move: (x, y) =>
+  setPosition: (x, y) =>
     @client 'set_top_left',
       x: x
       y: y
@@ -59,20 +66,28 @@ class Window
   focusTo: (direction) =>
     @client 'focus_window_' + direction
 
-  normal: =>
-    @client 'normal_window?'
+  isNormal: =>
+    @client('normal_window?').then (@normal) =>
+      @normal
 
-  minimized: =>
-    @client 'minimized?'
+  isMinimized: =>
+    @client('minimized?').then (@minimized) => @minimized
 
-  windowsTo: (directon) =>
-    @client 'window_to_' + direction
+  getWindowsTo: (direction) =>
+    @client('windows_to_' + direction).then (windows) =>
+      @windowsTo[direction] = windows.map (id) -> new Window(id)
 
   otherWindows: (options = {}) =>
     if options.sameScreen
       @client 'other_windows_on_same_screen'
     else
       @client 'other_windows_on_all_screens'
+
+  preload: (params = []) =>
+    promises = for param in params
+      @[preloading[param]]()
+    When.all(promises).then =>
+      return this
 
 
 client = wrap(0)
@@ -85,9 +100,12 @@ Api =
     client('focused_window').then (id) ->
       new Window(id)
 
-  visible: ->
+  visible: (options) ->
     client('visible_windows').then (windows) ->
-      windows.map (id) -> new Window(id)
+      promises = for id in windows
+        window = new Window(id)
+        window.preload options
+      When.all promises
 
   all: ->
     client('all_windows').then (windows) ->
