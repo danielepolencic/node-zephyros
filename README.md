@@ -3,6 +3,10 @@ Node.js adapter for [Zephyros](https://github.com/sdegutis/zephyros) - the OS X 
 
 ![Zephyros Demo](http://i.imgur.com/bXDlfH0.gif)
 
+This is a fork of `node-zephyros` by Daniel Polencic. The main difference is that this uses a class based API where the original used a chaining system.
+
+This allows for more control over Zephyros but has a lot more callbacks.
+
 ## Usage
 Include `zephyros` in your script and you're ready to go!
 
@@ -11,9 +15,9 @@ Zephyros = require('zephyros')
 
 z = new Zephyros()
 
-z.bind('t', ['Cmd', 'Shift']).then ->
-  z.util.clipboardContents().then (clipboard) ->
-    console.log 'clipboard: ', clipboard
+z.bind('h', ['Cmd', 'Shift']).then ->
+  z.window.active().then (window) ->
+    window.nudge -100, 0
 
 ```
 
