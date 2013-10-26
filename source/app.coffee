@@ -1,6 +1,13 @@
 wrap = require './wrapper'
+preload = require './preload'
 
 class App
+
+  _index:
+    title: 'getTitle'
+    hidden: 'isHidden'
+    all: 'allWindows'
+    visible: 'visibleWindows'
 
   constructor: (@id) ->
     @client = wrap @id
@@ -8,18 +15,18 @@ class App
   allWindows: =>
     Window = require('./window')._model
     @client('all_windows').then (windows) ->
-      windows.map (id) -> new Window(id)
+      @all = windows.map (id) -> new Window(id)
 
   visibleWindows: =>
     Window = require('./window')._model
     @client('visible_windows').then (windows) ->
-      windows.map (id) -> new Window(id)
+      @visible = windows.map (id) -> new Window(id)
 
-  title: =>
-    @client 'title'
+  getTitle: =>
+    @client('title').then (@title) => @title
 
-  hidden: =>
-    @client 'hidden?'
+  isHidden: =>
+    @client('hidden?').then (@hidden) => @hidden
 
   show: =>
     @client 'show'
@@ -33,6 +40,8 @@ class App
   kill9: =>
     @client 'kill9'
 
+  preload: preload.extend
+
 
 client = wrap 0
 
@@ -40,8 +49,8 @@ Api =
 
   _model: App
 
-  all: =>
+  all: (attrs) ->
     client('running_apps').then (apps) ->
-      apps.map (id) -> new App(id)
+      preload attrs, apps.map (id) -> new App(id)
 
 module.exports = Api

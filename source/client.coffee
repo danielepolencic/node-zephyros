@@ -1,4 +1,3 @@
-_    = require 'lodash'
 net  = require 'net'
 uuid = require 'node-uuid'
 When = require 'when'
@@ -18,11 +17,11 @@ class MasterClient
         callback?.call(this, packet.response)
 
   parsePacket: (packet) =>
-    if _.isEmpty(packet) then return
+    if packet.length is 0 then return
 
     try
       message = JSON.parse packet
-      unless _.isArray message then return
+      unless Array.isArray message then return
 
       id       = message.shift()
       response = message.shift()

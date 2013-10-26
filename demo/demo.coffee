@@ -1,49 +1,74 @@
-Zephyros = require '../'
+Zephyros = require './source/zephyros'
 
-z = new Zephyros()
+z = new Zephyros
 
-z.bind('m', ['Cmd', 'Ctrl']).then ->
-  z.window.focused().then (win) -> win.maximize()
+# mixins
 
-z.screen.main().then (screen) ->
-  screen.frame(noDock: yes).then (frame) ->
-    mainFrame = frame
+focus = (direction) ->
+  z.window.active().then (win) ->
+    win.focusTo direction
 
-z.bind('right', ['Cmd', 'Ctrl', 'Alt']).then ->
-  z.window.focused().then (win) ->
-    win.screen().then (screen) ->
-      screen.frame(noDock: yes).then (frame) ->
-        win.setFrame (coords) ->
-          coords.x = coords.w = frame.w / 2
-          coords.h = frame.h
-          coords.y = frame.y
-          return coords
+nudge = (x, y) ->
+  z.window.active().then (win) ->
+    win.nudge x, y
 
-z.bind('right', ['Cmd', 'Ctrl', 'Alt']).then ->
-  z.window.focused().then (win) ->
-    win.moveTo
-      x: 0.5
-      y: 0
-      w: 0.5
-      h: 1
+resize = (w, h) ->
+  z.window.active().then (win) ->
+    win.resize w, h
 
-z.bind('h', ['Cmd', 'Ctrl']).then ->
-  z.window.focused().with('frame').then (win) ->
-    grid = win.snapToGrid()
-    grid.x += 1
-    win.moveTo grid
+snap = (direction) ->
+  z.window.active('frame', 'screen').then (win) ->
+    win.screen.getFrame().then (screen) ->
 
-z.bind(']', ['Cmd', 'Ctrl']).then ->
-  z.window.focused().then (win) ->
-    grid = win.snapToGrid()
-    grid.h += 1
-    win.moveTo grid
+      frame =
+        x: screen.x
+        y: screen.y
+        w: screen.w
+        h: screen.h
 
-z.bind('c', ['Cmd', 'Alt', 'Ctrl']).then ->
-  z.util.clipboard().then (clipboard) ->
-    z.util.alert clipboard.toString()
+      switch direction
 
-z.window.gridify()
-  # loop through all visible windows
-  # position each one in a part of the grid
-  # use window.windowsTo('north') to select them and move them around
+        when 'up'
+          frame.x = win.frame.x
+          frame.y = frame.y
+          frame.w = win.frame.w
+          frame.h = frame.h / 2
+
+        when 'down'
+          frame.x = win.frame.x
+          frame.y = frame.y + frame.h / 2
+          frame.w = win.frame.w
+          frame.h = frame.h / 2
+
+        when 'right'
+          frame.x += frame.w / 2
+          frame.w /= 2
+
+        when 'left'
+          frame.w /= 2
+
+      win.setFrame frame
+
+# bindings
+
+x = 100
+
+z.bind('l', ['Cmd']).then -> focus 'right'
+z.bind('h', ['Cmd']).then -> focus 'left'
+z.bind('j', ['Cmd']).then -> focus 'down'
+z.bind('k', ['Cmd']).then -> focus 'up'
+
+z.bind('h', ['Cmd', 'Shift']).then -> nudge -x, 0
+z.bind('l', ['Cmd', 'Shift']).then -> nudge x, 0
+z.bind('j', ['Cmd', 'Shift']).then -> nudge 0, x
+z.bind('k', ['Cmd', 'Shift']).then -> nudge 0, -x
+
+z.bind('[', ['Cmd', 'Ctrl']).then -> resize -x, 0
+z.bind(']', ['Cmd', 'Ctrl']).then -> resize x, 0
+z.bind('-', ['Cmd', 'Ctrl']).then -> resize 0, -x
+z.bind('=', ['Cmd', 'Ctrl']).then -> resize 0, x
+
+z.bind('h', ['Cmd', 'Ctrl']).then -> snap 'left'
+z.bind('l', ['Cmd', 'Ctrl']).then -> snap 'right'
+z.bind('j', ['Cmd', 'Ctrl']).then -> snap 'down'
+z.bind('k', ['Cmd', 'Ctrl']).then -> snap 'up'

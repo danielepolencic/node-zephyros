@@ -1,21 +1,27 @@
 wrap   = require './wrapper'
-Screen = require './screen'
-App    = require './app'
-When   = require 'when'
-
-preloading =
-  'title': 'getTitle'
-  'frame': 'getFrame'
+Screen = require('./screen')._model
+App    = require('./app')._model
+preload = require './preload'
 
 class Window
+
+  _index:
+    title: 'getTitle'
+    screen: 'getScreen'
+    app: 'getApp'
+    frame: 'getFrame'
+    size: 'getSize'
+    position: 'getPosition'
+    normal: 'isNormal'
+    minimized: 'isMinimized'
 
   constructor: (@id) ->
     @client = wrap @id
     @windowsTo = []
 
   getTitle: =>
-    @client('title').then (@title) =>
-      @title
+    @client('title').then (@title) => @title
+
 
   getScreen: =>
     @client('screen').then (id) =>
@@ -25,31 +31,39 @@ class Window
     @client('app').then (app) =>
       @app = new App(app)
 
+
   getFrame: =>
     @client('frame').then (@frame) => @frame
 
   setFrame: (x, y, w, h) =>
-    @client 'set_frame',
-      x: x
-      y: y
-      w: w
-      h: h
+    @client 'set_frame', if x.x? then x else { x:x, y:y, w:w, h:h }
+
 
   getSize: =>
     @client('size').then (@size) => @size
 
-  setSize: (width, height) =>
-    @client 'set_size',
-      w: width
-      h: height
+  setSize: (w, h) =>
+    @client 'set_size', if w.w? then w else { w:w, h:h }
+
+  resize: (w, h) =>
+    @getSize().then =>
+      @setSize
+        w: @size.w + w
+        h: @size.h + h
+
 
   getPosition: =>
     @client('top_left').then (@position) => @position
 
   setPosition: (x, y) =>
-    @client 'set_top_left',
-      x: x
-      y: y
+    @client 'set_top_left', if x.x? then x else { x:x, y:y }
+
+  nudge: (x, y) =>
+    @getPosition().then =>
+      @setPosition
+        x: @position.x + x
+        y: @position.y + y
+
 
   maximize: =>
     @client 'maximize'
@@ -60,35 +74,34 @@ class Window
   unminimize: =>
     @client 'un_minimize'
 
+
   focus: =>
     @client 'focus_window'
 
   focusTo: (direction) =>
+    # return unless direction in ['up', 'down', 'left', 'right']
     @client 'focus_window_' + direction
 
+
+  getWindowsTo: (direction) =>
+    # return unless direction in ['north', 'south', 'east', 'west']
+    @client('windows_to_' + direction).then (windows) =>
+      @windowsTo[direction] = windows.map (id) -> new Window(id)
+
+  getOtherWindows: (options = {}) =>
+    if options.all
+      @client 'other_windows_on_all_screens'
+    else
+      @client 'other_windows_on_same_screen'
+
+
   isNormal: =>
-    @client('normal_window?').then (@normal) =>
-      @normal
+    @client('normal_window?').then (@normal) => @normal
 
   isMinimized: =>
     @client('minimized?').then (@minimized) => @minimized
 
-  getWindowsTo: (direction) =>
-    @client('windows_to_' + direction).then (windows) =>
-      @windowsTo[direction] = windows.map (id) -> new Window(id)
-
-  otherWindows: (options = {}) =>
-    if options.sameScreen
-      @client 'other_windows_on_same_screen'
-    else
-      @client 'other_windows_on_all_screens'
-
-  preload: (params = []) =>
-    promises = for param in params
-      @[preloading[param]]()
-    When.all(promises).then =>
-      return this
-
+  preload: preload.extend
 
 client = wrap(0)
 
@@ -96,19 +109,16 @@ Api =
 
   _model: Window
 
-  active: ->
+  active: (attrs...) ->
     client('focused_window').then (id) ->
-      new Window(id)
+      preload attrs, new Window(id)
 
-  visible: (options) ->
+  visible: (attrs...) ->
     client('visible_windows').then (windows) ->
-      promises = for id in windows
-        window = new Window(id)
-        window.preload options
-      When.all promises
+      preload attrs, windows.map (id) -> new Window(id)
 
-  all: ->
+  all: (attrs...) ->
     client('all_windows').then (windows) ->
-      windows.map (id) -> new Window(id)
+      preload attrs, windows.map (id) -> new Window(id)
 
 module.exports = Api
