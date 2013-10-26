@@ -1,1 +1,1 @@
-exports = module.exports = require('./src/zephyros');
+module.exports = require './source/zephyros'

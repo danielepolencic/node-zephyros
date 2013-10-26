@@ -12,7 +12,7 @@ preload = (attrs=[], models=[]) ->
   When.all(promises).then ->
     if models.length is 1 then models[0] else models
 
-preload.extend = (attrs) ->
-  preload.call(this, attrs, this)
+preload.extend = (attrs...) ->
+  preload(attrs, this)
 
 module.exports = preload

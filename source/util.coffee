@@ -31,7 +31,12 @@ Api =
   clipboard: ->
     client 'clipboard_contents'
 
-  chooseFrom: (list, title, lines, chars) ->
-    client 'choose_from', list, title, lines, chars
+  chooseFrom: (list, title, height, width) ->
+    if list.list?
+      title  = list.title
+      height = list.height
+      width  = list.width
+      list   = list.list
+    client 'choose_from', list, title, height, width
 
 module.exports = Api

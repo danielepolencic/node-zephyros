@@ -1,4 +1,4 @@
-Zephyros = require './source/zephyros'
+Zephyros = require '../'
 
 z = new Zephyros
 
