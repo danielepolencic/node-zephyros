@@ -1,32 +1,15 @@
 {
-  "name": "node-zephyros",
-  "version": "0.2.2",
-  "author": "Daniele Polencic <daniele.polencic@gmail.com>",
+  "name": "zephyros-js",
+  "version": "0.0.1",
+  "author": "George Czabania <george@czabania.com>",
+  "main": "index.coffee",
   "scripts": {
-    "test": "mocha test"
-  },
-  "jshintConfig": {
-    "boss":      true,
-    "node":      true,
-    "strict":    false,
-    "white":     true,
-    "smarttabs": true,
-    "newcap":    false,
-    "undef":     true,
-    "unused":    true,
-    "onecase":   true,
-    "indent":    2,
-    "globals": {
-      "it": false,
-      "describe": false,
-      "beforeEach": false,
-      "afterEach": false
-    }
+    "test": "mocha --compilers coffee:coffee-script tests"
   },
   "dependencies": {
+    "coffee-script": "~1.6.3",
     "when" : "2.3.0",
-    "node-uuid" : "1.4.0",
-    "lodash" : "1.3.1"
+    "node-uuid" : "1.4.0"
   },
   "devDependencies": {
     "mocha": "1.12.0"
