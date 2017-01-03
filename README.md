@@ -405,7 +405,7 @@ z.bind('t', ['Cmd', 'Shift'])
 ```
 
 ## Tests
-Tests are written in [Mocha](http://visionmedia.github.io/mocha/). Simply run
+Tests are written in [Mocha](http://mochajs.org/). Simply run
 the test with:
 
     ~$ mocha
